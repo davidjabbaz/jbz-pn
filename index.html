@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>David & Fede — PN Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c10;
+      --surface:   #13131a;
+      --border:    #22222e;
+      --text:      #e2e2f0;
+      --muted:     #55556a;
+      --green:     #4ade80;
+      --green-dim: #0d2b1a;
+      --blue:      #60a5fa;
+      --blue-dim:  #0d1f3a;
+      --purple:    #a78bfa;
+      --purple-dim:#1c1035;
+      --orange:    #fb923c;
+      --orange-dim:#2a1805;
+      --yellow:    #fbbf24;
+      --yellow-dim:#251d05;
+      --red:       #f87171;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px 60px;
+    }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 28px; }
+    .names {
+      font-size: .78rem; font-weight: 600; letter-spacing: .12em;
+      color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+    }
+    .names span { color: var(--text); }
+
+    /* PN toggle */
+    .pn-toggle {
+      display: inline-flex; border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 10px;
+    }
+    .pn-btn {
+      padding: 6px 16px; font-size: .75rem; font-weight: 600;
+      letter-spacing: .05em; text-transform: uppercase; cursor: pointer;
+      background: transparent; border: none; color: var(--muted);
+      transition: background .15s, color .15s;
+    }
+    .pn-btn.active { background: var(--surface); color: var(--text); }
+
+    .total-amount {
+      font-size: clamp(2.6rem, 7vw, 4rem);
+      font-weight: 800; letter-spacing: -.03em; color: #fff;
+      line-height: 1; transition: opacity .2s;
+    }
+    .total-sub {
+      margin-top: 6px; font-size: .75rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .09em;
+    }
+
+    /* ── Quick stats ── */
+    .stats {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      max-width: 1080px; margin: 0 auto 24px;
+    }
+    .stat {
+      flex: 1 1 130px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 13px 16px;
+    }
+    .stat-val { font-size: 1.2rem; font-weight: 700; line-height: 1.2; }
+    .stat-val small { font-size: .75rem; color: var(--muted); font-weight: 400; }
+    .stat-lbl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 3px; }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 14px; max-width: 1080px; margin: 0 auto;
+    }
+    .col-wide { grid-column: 1 / -1; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px 20px 20px;
+    }
+    .card-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .icon {
+      width: 32px; height: 32px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .95rem; flex-shrink: 0;
+    }
+    .card-title { font-size: .93rem; font-weight: 600; color: #ccd; }
+
+    /* ── Row ── */
+    .row {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 8px;
+      padding: 9px 0; border-bottom: 1px solid #1a1a25;
+    }
+    .row:last-child { border-bottom: none; }
+    .row-left { flex: 1; }
+    .row-right { text-align: right; flex-shrink: 0; }
+    .row-name { font-size: .86rem; color: #aab; font-weight: 500; }
+    .row-note { font-size: .71rem; color: var(--muted); margin-top: 2px; }
+    .row-val { font-size: .95rem; font-weight: 700; }
+    .row-val-secondary { font-size: .75rem; color: var(--muted); margin-top: 1px; }
+    .row-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #1a1a28; border: 1px solid #2a2a40;
+      border-radius: 5px; padding: 2px 7px;
+      font-size: .7rem; color: #888; margin-top: 3px;
+    }
+
+    /* ── Subtotal ── */
+    .subtotal {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 6px;
+    }
+    .subtotal-lbl { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+    .subtotal-val { font-size: 1.18rem; font-weight: 800; }
+    .subtotal-right { text-align: right; }
+
+    /* ── Pending tag ── */
+    .pending {
+      display: inline-block; font-size: .67rem; font-weight: 600;
+      padding: 1px 6px; border-radius: 4px; margin-top: 3px;
+    }
+    .pending-red   { background: #2a0d0d; color: var(--red); }
+    .pending-amber { background: #251505; color: var(--yellow); }
+
+    /* ── Multiplier badge ── */
+    .mult {
+      display: inline-flex; align-items: center;
+      font-size: .7rem; font-weight: 700; padding: 1px 6px;
+      border-radius: 4px; margin-left: 5px; vertical-align: middle;
+    }
+
+    /* ── Progress bar (negocios) ── */
+    .negocio { padding: 11px 0; border-bottom: 1px solid #1a1a25; }
+    .negocio:last-child { border-bottom: none; }
+    .neg-top {
+      display: flex; justify-content: space-between;
+      align-items: baseline; margin-bottom: 7px; gap: 8px; flex-wrap: wrap;
+    }
+    .neg-name { font-size: .88rem; font-weight: 600; color: #ccd; }
+    .neg-amounts { font-size: .8rem; white-space: nowrap; }
+    .neg-current { font-weight: 700; }
+    .neg-target { color: var(--muted); }
+    .bar-wrap { height: 5px; background: #1c1c28; border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; }
+    .neg-note { font-size: .7rem; color: var(--muted); margin-top: 4px; }
+
+    /* Colors */
+    .c-green  { color: var(--green); }
+    .c-blue   { color: var(--blue); }
+    .c-purple { color: var(--purple); }
+    .c-orange { color: var(--orange); }
+    .c-yellow { color: var(--yellow); }
+    .c-muted  { color: var(--muted); }
+    .c-red    { color: var(--red); }
+
+    .bg-green  { background: var(--green-dim);  color: var(--green); }
+    .bg-blue   { background: var(--blue-dim);   color: var(--blue); }
+    .bg-purple { background: var(--purple-dim); color: var(--purple); }
+    .bg-orange { background: var(--orange-dim); color: var(--orange); }
+    .bg-yellow { background: var(--yellow-dim); color: var(--yellow); }
+
+    footer {
+      text-align: center; margin-top: 40px;
+      font-size: .7rem; color: #252530;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="names"><span>David</span> & <span>Fede</span> — Patrimonio Neto</div>
+
+  <div class="pn-toggle">
+    <button class="pn-btn active" onclick="setView('costo')">A costo</button>
+    <button class="pn-btn" onclick="setView('mercado')">A mercado</button>
+  </div>
+
+  <div class="total-amount" id="total-display">$2,513,000</div>
+  <div class="total-sub" id="total-sub">Lo invertido hasta hoy · Calculado</div>
+</header>
+
+<!-- ── FALTA PAGAR ── -->
+<div style="max-width:1080px; margin: 0 auto 16px;">
+  <div style="background:#1a0d0d; border:1px solid #3a1a1a; border-radius:14px; padding:16px 20px;">
+    <div style="font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#f87171; margin-bottom:12px;">
+      🔴 Falta pagar — Propiedades
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+      <div style="flex:1 1 160px; background:#220e0e; border:1px solid #3a1a1a; border-radius:10px; padding:10px 14px;">
+        <div style="font-size:.72rem; color:#888; margin-bottom:2px;">Depto Arenales</div>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--yellow);">$132,000</div>
+        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">8 cuotas × $16,500</div>
+      </div>
+      <div style="flex:1 1 160px; background:#220e0e; border:1px solid #3a1a1a; border-radius:10px; padding:10px 14px;">
+        <div style="font-size:.72rem; color:#888; margin-bottom:2px;">Geriátrico</div>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--red);">$250,000</div>
+        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">Capital restante</div>
+      </div>
+      <div style="flex:1 1 160px; background:#220e0e; border:1px solid #3a1a1a; border-radius:10px; padding:10px 14px;">
+        <div style="font-size:.72rem; color:#888; margin-bottom:2px;">Edificio Bronx</div>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--red);">$500,000</div>
+        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">Capital total pendiente</div>
+      </div>
+      <div style="flex:1 1 160px; background:#2a0d0d; border:1px solid #5a1a1a; border-radius:10px; padding:10px 14px;">
+        <div style="font-size:.72rem; color:#f87171; margin-bottom:2px; font-weight:600;">TOTAL A PAGAR</div>
+        <div style="font-size:1.25rem; font-weight:800; color:#fff;">$882,000</div>
+        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">En las 3 propiedades</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── QUICK STATS ── -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val c-green">$1,530,000</div>
+    <div class="stat-lbl">Bolsa</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val c-blue" id="stat-prop">$900,000</div>
+    <div class="stat-lbl" id="stat-prop-lbl">Propiedades (invertido)</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val c-purple">$83,000</div>
+    <div class="stat-lbl">Cash</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val c-orange">$13,000 <small>/mes</small></div>
+    <div class="stat-lbl">Renta negocios</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val c-yellow">$12,500 <small>/mes</small></div>
+    <div class="stat-lbl">Renta propiedades</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" style="color:#e879f9;">$36,000 <small>/mes</small></div>
+    <div class="stat-lbl">Objetivo negocios</div>
+  </div>
+</div>
+
+<!-- ── MAIN GRID ── -->
+<div class="grid">
+
+  <!-- BOLSA -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon bg-green">📈</div>
+      <div class="card-title">Bolsa / Inversiones</div>
+    </div>
+
+    <div class="row">
+      <div class="row-left">
+        <div class="row-name">Veta</div>
+        <div class="row-note">Cuenta local · posición al 4/11</div>
+      </div>
+      <div class="row-right">
+        <div class="row-val c-green">$1,500,000</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row-left">
+        <div class="row-name">CAFE</div>
+        <div class="row-note">Cuenta en el exterior</div>
+      </div>
+      <div class="row-right">
+        <div class="row-val c-green">$30,000</div>
+      </div>
+    </div>
+
+    <div class="subtotal">
+      <div class="subtotal-lbl">Subtotal</div>
+      <div class="subtotal-val c-green">$1,530,000</div>
+    </div>
+  </div>
+
+  <!-- CASH -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon bg-purple">💵</div>
+      <div class="card-title">Cash</div>
+    </div>
+
+    <div class="row">
+      <div class="row-left"><div class="row-name">Ofi Lucho</div></div>
+      <div class="row-right"><div class="row-val c-purple">$40,000</div></div>
+    </div>
+
+    <div class="row">
+      <div class="row-left"><div class="row-name">PSEC</div></div>
+      <div class="row-right"><div class="row-val c-purple">$23,000</div></div>
+    </div>
+
+    <div class="row">
+      <div class="row-left"><div class="row-name">Veta</div></div>
+      <div class="row-right"><div class="row-val c-purple">$20,000</div></div>
+    </div>
+
+    <div class="subtotal">
+      <div class="subtotal-lbl">Subtotal</div>
+      <div class="subtotal-val c-purple">$83,000</div>
+    </div>
+  </div>
+
+  <!-- PROPIEDADES (wide) -->
+  <div class="card col-wide">
+    <div class="card-head">
+      <div class="icon bg-blue">🏢</div>
+      <div class="card-title">Propiedades</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 0 36px;">
+
+      <div class="row">
+        <div class="row-left">
+          <div class="row-name">
+            Pueyrredón
+            <span class="mult bg-green">×2</span>
+          </div>
+          <div class="row-note">Invertido: $400,000</div>
+        </div>
+        <div class="row-right">
+          <div class="row-val c-blue prop-costo" >$400,000</div>
+          <div class="row-val c-green prop-mercado" style="display:none;">$800,000</div>
+          <div class="row-val-secondary prop-mercado" style="display:none; color:var(--green);">+$400k ganancia</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-left">
+          <div class="row-name">
+            La Dolfina
+            <span class="mult bg-green">×4</span>
+          </div>
+          <div class="row-note">Invertido: $150,000</div>
+        </div>
+        <div class="row-right">
+          <div class="row-val c-blue prop-costo">$150,000</div>
+          <div class="row-val c-green prop-mercado" style="display:none;">$600,000</div>
+          <div class="row-val-secondary prop-mercado" style="display:none; color:var(--green);">+$450k ganancia</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-left">
+          <div class="row-name">Depto Arenales</div>
+          <div class="row-note">Invertido: $100,000</div>
+          <span class="pending pending-amber">⏳ 8 cuotas × $16,500 pendientes ($132k)</span>
+        </div>
+        <div class="row-right">
+          <div class="row-val c-blue">$100,000</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-left">
+          <div class="row-name">Geriátrico</div>
+          <div class="row-note">Invertido: $250,000</div>
+          <span class="pending pending-red">🔴 Faltan $250,000 poner</span>
+        </div>
+        <div class="row-right">
+          <div class="row-val c-blue">$250,000</div>
+          <div class="row-badge">💰 $6,250 / mes</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-left">
+          <div class="row-name">Edificio Bronx</div>
+          <div class="row-note">Invertido: $0</div>
+          <span class="pending pending-red">🔴 Faltan $500,000 poner</span>
+        </div>
+        <div class="row-right">
+          <div class="row-val c-muted">$0</div>
+          <div class="row-badge">💰 $6,250 / mes</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="subtotal">
+      <div>
+        <div class="subtotal-lbl">Invertido · Renta mensual</div>
+        <div style="font-size:.68rem; color:var(--muted); margin-top:3px;">
+          Geriátrico + Bronx: $12,500/mes cuando estén completos
+        </div>
+      </div>
+      <div class="subtotal-right">
+        <div>
+          <span class="subtotal-val c-blue prop-costo">$900,000</span>
+          <span class="subtotal-val c-green prop-mercado" style="display:none;">$1,750,000</span>
+          <span style="font-size:.8rem; color:var(--muted); margin-left:10px;">$12,500 / mes</span>
+        </div>
+        <div class="prop-mercado" style="display:none; font-size:.72rem; color:var(--green); margin-top:3px;">
+          +$850k vs. costo
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEGOCIOS -->
+  <div class="card col-wide">
+    <div class="card-head">
+      <div class="icon bg-orange">💼</div>
+      <div class="card-title">Negocios — Renta mensual</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 0 36px;">
+
+      <div class="negocio">
+        <div class="neg-top">
+          <div class="neg-name">Veta</div>
+          <div class="neg-amounts">
+            <span class="neg-current c-orange">$12,000</span>
+            <span class="neg-target"> → obj. $20,000 / mes</span>
+          </div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:60%; background:var(--orange);"></div>
+        </div>
+        <div class="neg-note">60% del objetivo · faltan $8,000/mes</div>
+      </div>
+
+      <div class="negocio">
+        <div class="neg-top">
+          <div class="neg-name">Cuentas Off-Shore</div>
+          <div class="neg-amounts">
+            <span class="neg-current c-orange">$1,000</span>
+            <span class="neg-target"> → obj. $6,000 / mes</span>
+          </div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:17%; background:var(--yellow);"></div>
+        </div>
+        <div class="neg-note">17% del objetivo · mayor upside</div>
+      </div>
+
+      <div class="negocio">
+        <div class="neg-top">
+          <div class="neg-name">Lili Pink <span style="font-size:.7rem; color:var(--muted); font-weight:400;">marca de ropa</span></div>
+          <div class="neg-amounts">
+            <span class="neg-current c-muted">$0</span>
+            <span class="neg-target"> → obj. $10,000 / mes</span>
+          </div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:0%; background:var(--red);"></div>
+        </div>
+        <div class="neg-note">Sin ingresos todavía</div>
+      </div>
+
+      <div class="negocio">
+        <div class="neg-top">
+          <div class="neg-name" style="color:var(--muted);">+ Nuevo negocio <span style="font-size:.7rem;">(por definir)</span></div>
+          <div class="neg-amounts">
+            <span class="neg-current c-muted">$0</span>
+            <span class="neg-target"> → obj. TBD</span>
+          </div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:0%; background:#333;"></div>
+        </div>
+        <div class="neg-note">Pendiente identificar</div>
+      </div>
+
+    </div>
+
+    <div class="subtotal">
+      <div>
+        <div class="subtotal-lbl">Renta actual total</div>
+        <div style="font-size:.68rem; color:var(--muted); margin-top:3px;">Cuando se llegue al objetivo</div>
+      </div>
+      <div class="subtotal-right">
+        <div class="subtotal-val c-orange">$13,000 <span style="font-size:.8rem; font-weight:400; color:var(--muted);">/ mes</span></div>
+        <div style="font-size:.85rem; color:var(--yellow); font-weight:700; margin-top:2px;">→ $36,000+ / mes</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>David & Fede PN · Solo para uso interno · Abril 2026</footer>
+
+<script>
+  const COSTO   = 2513000;
+  const MERCADO = 3363000;
+
+  function fmt(n) {
+    return '$' + n.toLocaleString('es-AR');
+  }
+
+  function setView(v) {
+    const isMercado = v === 'mercado';
+
+    document.querySelectorAll('.pn-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.pn-btn[onclick="setView('${v}')"]`).classList.add('active');
+
+    document.getElementById('total-display').textContent = fmt(isMercado ? MERCADO : COSTO);
+    document.getElementById('total-sub').textContent = isMercado
+      ? 'A valor de mercado estimado · Calculado'
+      : 'Lo invertido hasta hoy · Calculado';
+
+    document.getElementById('stat-prop').textContent      = isMercado ? '$1,750,000' : '$900,000';
+    document.getElementById('stat-prop-lbl').textContent  = isMercado ? 'Propiedades (mercado)' : 'Propiedades (invertido)';
+
+    document.querySelectorAll('.prop-costo').forEach(el => el.style.display  = isMercado ? 'none' : '');
+    document.querySelectorAll('.prop-mercado').forEach(el => el.style.display = isMercado ? ''     : 'none');
+  }
+</script>
+
+</body>
+</html>
