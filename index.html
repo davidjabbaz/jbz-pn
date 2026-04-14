@@ -3,529 +3,782 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>David & Fede — PN Dashboard</title>
+  <title>David & Fede — PN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0c0c10;
-      --surface:   #13131a;
-      --border:    #22222e;
-      --text:      #e2e2f0;
-      --muted:     #55556a;
-      --green:     #4ade80;
-      --green-dim: #0d2b1a;
-      --blue:      #60a5fa;
-      --blue-dim:  #0d1f3a;
-      --purple:    #a78bfa;
-      --purple-dim:#1c1035;
-      --orange:    #fb923c;
-      --orange-dim:#2a1805;
-      --yellow:    #fbbf24;
-      --yellow-dim:#251d05;
-      --red:       #f87171;
+      --bg:     #f0f2f8;
+      --s1:     #ffffff;
+      --border: #e2e5f0;
+      --text:   #1a1a2e;
+      --sub:    #7a82a0;
+      --em:     #059669;
+      --sky:    #0284c7;
+      --vio:    #7c3aed;
+      --amb:    #d97706;
+      --rose:   #e11d48;
+      --ind:    #4f46e5;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 28px 16px 60px;
+      overflow-x: hidden;
     }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 48px 20px 80px; }
 
     /* ── Header ── */
-    header { text-align: center; margin-bottom: 28px; }
-    .names {
-      font-size: .78rem; font-weight: 600; letter-spacing: .12em;
-      color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+    .header { text-align: center; margin-bottom: 44px; }
+    .header-names {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: .68rem; font-weight: 600; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--sub); margin-bottom: 18px;
     }
-    .names span { color: var(--text); }
+    .header-names .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
 
-    /* PN toggle */
     .pn-toggle {
-      display: inline-flex; border: 1px solid var(--border);
-      border-radius: 10px; overflow: hidden; margin-bottom: 10px;
+      display: inline-flex; background: #e8eaf5;
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 3px; margin-bottom: 18px; gap: 2px;
     }
     .pn-btn {
-      padding: 6px 16px; font-size: .75rem; font-weight: 600;
-      letter-spacing: .05em; text-transform: uppercase; cursor: pointer;
-      background: transparent; border: none; color: var(--muted);
-      transition: background .15s, color .15s;
+      padding: 5px 18px; font-size: .7rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      cursor: pointer; background: transparent; border: none;
+      color: var(--sub); border-radius: 7px; transition: all .2s;
     }
-    .pn-btn.active { background: var(--surface); color: var(--text); }
+    .pn-btn.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 
-    .total-amount {
-      font-size: clamp(2.6rem, 7vw, 4rem);
-      font-weight: 800; letter-spacing: -.03em; color: #fff;
-      line-height: 1; transition: opacity .2s;
+    .glow-wrap { position: relative; display: inline-block; }
+    .glow-wrap::after {
+      content: '';
+      position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 40px;
+      background: radial-gradient(ellipse, rgba(79,70,229,.1) 0%, transparent 70%);
+      pointer-events: none;
     }
-    .total-sub {
-      margin-top: 6px; font-size: .75rem; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .09em;
+    .total-num {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 900; letter-spacing: -.04em;
+      background: linear-gradient(135deg, #1a1a2e 30%, #4f46e5);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1; margin-bottom: 8px;
     }
+    .total-sub { font-size: .7rem; color: var(--sub); letter-spacing: .1em; text-transform: uppercase; }
 
-    /* ── Quick stats ── */
-    .stats {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      max-width: 1080px; margin: 0 auto 24px;
+    /* ── Alert bar ── */
+    .alert-bar {
+      background: linear-gradient(135deg, #fff5f6 0%, #fdf0f8 100%);
+      border: 1px solid #fccdd5; border-radius: 16px;
+      padding: 18px 22px; margin-bottom: 24px;
     }
+    .alert-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .63rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--rose); margin-bottom: 14px;
+    }
+    .alert-label::before {
+      content: ''; display: block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--rose); box-shadow: 0 0 8px rgba(225,29,72,.4);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .alert-items { display: flex; flex-wrap: wrap; gap: 10px; }
+    .alert-item {
+      flex: 1 1 140px; background: #fff;
+      border: 1px solid #fccdd5; border-radius: 10px; padding: 12px 14px;
+    }
+    .ai-name { font-size: .66rem; color: var(--sub); margin-bottom: 4px; }
+    .ai-val  { font-size: 1.05rem; font-weight: 800; }
+    .ai-note { font-size: .63rem; color: var(--sub); margin-top: 2px; }
+    .ai-total { background: #fff0f3; border-color: #f9a8b8; }
+    .ai-total .ai-name { color: var(--rose); font-weight: 600; }
+
+    /* capital gap */
+    .gap-wrap { margin-top: 16px; padding-top: 14px; border-top: 1px solid #fccdd5; }
+    .gap-label {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .gap-title { font-size: .65rem; font-weight: 700; color: var(--rose); text-transform: uppercase; letter-spacing: .1em; }
+    .gap-nums  { font-size: .7rem; color: var(--sub); }
+    .gap-nums strong { color: var(--text); font-weight: 700; }
+    .gap-track { height: 8px; background: #fce7ea; border-radius: 99px; overflow: hidden; position: relative; }
+    .gap-fill  {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--em), #34d399);
+      width: 9.4%;
+      transform: scaleX(0); transform-origin: left;
+      animation: growBar .9s ease .3s forwards;
+    }
+    .gap-pct {
+      font-size: .65rem; color: var(--sub); margin-top: 5px;
+      display: flex; justify-content: space-between;
+    }
+    .gap-pct strong { color: var(--em); }
+
+    /* ── Stats ── */
+    .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
     .stat {
-      flex: 1 1 130px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 13px 16px;
+      flex: 1 1 120px; background: var(--s1); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04); transition: box-shadow .2s;
     }
-    .stat-val { font-size: 1.2rem; font-weight: 700; line-height: 1.2; }
-    .stat-val small { font-size: .75rem; color: var(--muted); font-weight: 400; }
-    .stat-lbl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 3px; }
+    .stat:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .stat-v { font-size: 1.1rem; font-weight: 800; line-height: 1.2; }
+    .stat-v small { font-size: .72rem; font-weight: 400; color: var(--sub); }
+    .stat-l { font-size: .6rem; color: var(--sub); text-transform: uppercase; letter-spacing: .09em; margin-top: 4px; }
 
     /* ── Grid ── */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 14px; max-width: 1080px; margin: 0 auto;
-    }
-    .col-wide { grid-column: 1 / -1; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .wide { grid-column: 1 / -1; }
 
     /* ── Card ── */
     .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 18px 20px 20px;
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px 24px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.04);
+      transition: box-shadow .25s, transform .2s;
+      position: relative; overflow: hidden;
     }
-    .card-head {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); transform: translateY(-1px); }
+    .card-accent {
+      position: absolute; top: 0; left: 24px; right: 24px; height: 2px;
+      border-radius: 0 0 4px 4px; opacity: .7;
     }
+    .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
     .icon {
-      width: 32px; height: 32px; border-radius: 9px;
+      width: 36px; height: 36px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: .95rem; flex-shrink: 0;
+      font-size: 1rem; flex-shrink: 0;
     }
-    .card-title { font-size: .93rem; font-weight: 600; color: #ccd; }
+    .card-title { font-size: .92rem; font-weight: 700; color: var(--text); }
 
-    /* ── Row ── */
+    /* ── Rows ── */
     .row {
-      display: flex; justify-content: space-between;
-      align-items: flex-start; gap: 8px;
-      padding: 9px 0; border-bottom: 1px solid #1a1a25;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 8px; padding: 10px 0; border-bottom: 1px solid #eef0f8;
     }
     .row:last-child { border-bottom: none; }
-    .row-left { flex: 1; }
-    .row-right { text-align: right; flex-shrink: 0; }
-    .row-name { font-size: .86rem; color: #aab; font-weight: 500; }
-    .row-note { font-size: .71rem; color: var(--muted); margin-top: 2px; }
-    .row-val { font-size: .95rem; font-weight: 700; }
-    .row-val-secondary { font-size: .75rem; color: var(--muted); margin-top: 1px; }
-    .row-badge {
+    .rl { flex: 1; }
+    .rr { text-align: right; flex-shrink: 0; }
+    .rn  { font-size: .85rem; color: #3a3a5c; font-weight: 600; }
+    .rno { font-size: .69rem; color: var(--sub); margin-top: 2px; }
+    .rv  { font-size: .95rem; font-weight: 800; }
+    .rv2 { font-size: .7rem; margin-top: 1px; }
+
+    .badge {
       display: inline-flex; align-items: center; gap: 3px;
-      background: #1a1a28; border: 1px solid #2a2a40;
-      border-radius: 5px; padding: 2px 7px;
-      font-size: .7rem; color: #888; margin-top: 3px;
+      font-size: .66rem; padding: 2px 8px; border-radius: 20px;
+      font-weight: 600; margin-top: 4px;
     }
+    .badge-sky   { background: #e0f2fe; color: var(--sky); }
+    .badge-em    { background: #d1fae5; color: var(--em); }
+    .badge-rose  { background: #ffe4e6; color: var(--rose); }
 
-    /* ── Subtotal ── */
-    .subtotal {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
-      flex-wrap: wrap; gap: 6px;
+    .tag {
+      display: inline-block; font-size: .63rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 4px; margin-top: 4px;
     }
-    .subtotal-lbl { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
-    .subtotal-val { font-size: 1.18rem; font-weight: 800; }
-    .subtotal-right { text-align: right; }
+    .tag-amb  { background: #fef3c7; color: var(--amb);  border: 1px solid #fde68a; }
+    .tag-rose { background: #ffe4e6; color: var(--rose); border: 1px solid #fecdd3; }
 
-    /* ── Pending tag ── */
-    .pending {
-      display: inline-block; font-size: .67rem; font-weight: 600;
-      padding: 1px 6px; border-radius: 4px; margin-top: 3px;
-    }
-    .pending-red   { background: #2a0d0d; color: var(--red); }
-    .pending-amber { background: #251505; color: var(--yellow); }
-
-    /* ── Multiplier badge ── */
     .mult {
       display: inline-flex; align-items: center;
-      font-size: .7rem; font-weight: 700; padding: 1px 6px;
+      font-size: .64rem; font-weight: 800; padding: 1px 6px;
       border-radius: 4px; margin-left: 5px; vertical-align: middle;
+      background: #d1fae5; color: var(--em);
     }
 
-    /* ── Progress bar (negocios) ── */
-    .negocio { padding: 11px 0; border-bottom: 1px solid #1a1a25; }
-    .negocio:last-child { border-bottom: none; }
+    /* roi badge */
+    .roi {
+      display: inline-flex; align-items: center;
+      font-size: .64rem; font-weight: 800; padding: 2px 7px;
+      border-radius: 4px; margin-top: 4px;
+      background: #f0fdf4; color: var(--em); border: 1px solid #bbf7d0;
+    }
+    .roi-na { background: #f5f5f8; color: var(--sub); border-color: var(--border); }
+
+    /* ── Subtotal ── */
+    .sub-line {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 14px; padding-top: 12px; border-top: 1px solid #eef0f8;
+      flex-wrap: wrap; gap: 6px;
+    }
+    .sub-l { font-size: .63rem; color: var(--sub); text-transform: uppercase; letter-spacing: .09em; }
+    .sub-r { text-align: right; }
+    .sub-v { font-size: 1.18rem; font-weight: 900; }
+
+    /* ── Donut ── */
+    .donut-wrap {
+      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    }
+    .donut-chart {
+      width: 130px; height: 130px; border-radius: 50%; flex-shrink: 0;
+      position: relative;
+      background: conic-gradient(
+        var(--em)  0%       60.88%,
+        var(--sky) 60.88%   96.70%,
+        var(--vio) 96.70%  100%
+      );
+    }
+    .donut-chart::after {
+      content: ''; position: absolute; inset: 26px;
+      border-radius: 50%; background: #fff;
+    }
+    .donut-center {
+      position: absolute; inset: 0; display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+      z-index: 1; pointer-events: none;
+    }
+    .donut-center-val { font-size: .68rem; font-weight: 900; color: var(--text); line-height: 1; }
+    .donut-center-lbl { font-size: .48rem; color: var(--sub); text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
+    .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 150px; }
+    .dl-item { display: flex; align-items: center; gap: 10px; }
+    .dl-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .dl-body { flex: 1; }
+    .dl-name { font-size: .75rem; font-weight: 600; color: #3a3a5c; }
+    .dl-val  { font-size: .7rem; color: var(--sub); }
+    .dl-pct  { font-size: .75rem; font-weight: 800; margin-left: auto; }
+
+    /* ── Proyección anual ── */
+    .proj-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid #eef0f8;
+    }
+    .proj-row:last-child { border-bottom: none; }
+    .proj-label { font-size: .82rem; color: #3a3a5c; font-weight: 500; }
+    .proj-sub   { font-size: .67rem; color: var(--sub); margin-top: 1px; }
+    .proj-vals  { text-align: right; }
+    .proj-mes   { font-size: .72rem; color: var(--sub); }
+    .proj-anio  { font-size: 1rem; font-weight: 800; }
+
+    .proj-divider {
+      margin: 10px 0; border: none; border-top: 2px dashed #e8eaf5;
+    }
+
+    /* ── Negocios progress ── */
+    .neg { padding: 12px 0; border-bottom: 1px solid #eef0f8; }
+    .neg:last-child { border-bottom: none; }
     .neg-top {
-      display: flex; justify-content: space-between;
-      align-items: baseline; margin-bottom: 7px; gap: 8px; flex-wrap: wrap;
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
     }
-    .neg-name { font-size: .88rem; font-weight: 600; color: #ccd; }
-    .neg-amounts { font-size: .8rem; white-space: nowrap; }
-    .neg-current { font-weight: 700; }
-    .neg-target { color: var(--muted); }
-    .bar-wrap { height: 5px; background: #1c1c28; border-radius: 99px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 99px; }
-    .neg-note { font-size: .7rem; color: var(--muted); margin-top: 4px; }
+    .neg-name { font-size: .87rem; font-weight: 700; color: var(--text); }
+    .neg-nums { font-size: .78rem; white-space: nowrap; }
+    .neg-cur  { font-weight: 800; }
+    .neg-tgt  { color: var(--sub); }
+    .bar-track { height: 4px; background: #e8eaf5; border-radius: 99px; overflow: hidden; }
+    .bar-fill {
+      height: 100%; border-radius: 99px;
+      transform: scaleX(0); transform-origin: left;
+      animation: growBar .8s ease forwards;
+    }
+    @keyframes growBar { to { transform: scaleX(1); } }
+    .neg-foot { display: flex; justify-content: space-between; margin-top: 5px; }
+    .neg-note { font-size: .67rem; color: var(--sub); }
+    .neg-pct  { font-size: .67rem; font-weight: 700; }
 
-    /* Colors */
-    .c-green  { color: var(--green); }
-    .c-blue   { color: var(--blue); }
-    .c-purple { color: var(--purple); }
-    .c-orange { color: var(--orange); }
-    .c-yellow { color: var(--yellow); }
-    .c-muted  { color: var(--muted); }
-    .c-red    { color: var(--red); }
-
-    .bg-green  { background: var(--green-dim);  color: var(--green); }
-    .bg-blue   { background: var(--blue-dim);   color: var(--blue); }
-    .bg-purple { background: var(--purple-dim); color: var(--purple); }
-    .bg-orange { background: var(--orange-dim); color: var(--orange); }
-    .bg-yellow { background: var(--yellow-dim); color: var(--yellow); }
+    /* ── Colors ── */
+    .c-em   { color: var(--em); }
+    .c-sky  { color: var(--sky); }
+    .c-vio  { color: var(--vio); }
+    .c-amb  { color: var(--amb); }
+    .c-rose { color: var(--rose); }
+    .c-ind  { color: var(--ind); }
+    .c-sub  { color: var(--sub); }
 
     footer {
-      text-align: center; margin-top: 40px;
-      font-size: .7rem; color: #252530;
+      text-align: center; margin-top: 60px;
+      font-size: .63rem; color: #b0b8cc;
+      letter-spacing: .1em; text-transform: uppercase;
     }
   </style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- ── HEADER ── -->
-<header>
-  <div class="names"><span>David</span> & <span>Fede</span> — Patrimonio Neto</div>
-
-  <div class="pn-toggle">
-    <button class="pn-btn active" onclick="setView('costo')">A costo</button>
-    <button class="pn-btn" onclick="setView('mercado')">A mercado</button>
-  </div>
-
-  <div class="total-amount" id="total-display">$2,513,000</div>
-  <div class="total-sub" id="total-sub">Lo invertido hasta hoy · Calculado</div>
-</header>
-
-<!-- ── FALTA PAGAR ── -->
-<div style="max-width:1080px; margin: 0 auto 16px;">
-  <div style="background:#1a0d0d; border:1px solid #3a1a1a; border-radius:14px; padding:16px 20px;">
-    <div style="font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#f87171; margin-bottom:12px;">
-      🔴 Falta pagar — Propiedades
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-names">
+      <span>David</span><span class="dot"></span>
+      <span>Fede</span><span class="dot"></span>
+      <span>Patrimonio Neto</span>
+    </div><br/>
+    <div class="pn-toggle">
+      <button class="pn-btn active" onclick="setView('costo')">A costo</button>
+      <button class="pn-btn" onclick="setView('mercado')">A mercado</button>
+    </div><br/>
+    <div class="glow-wrap">
+      <div class="total-num" id="total-num">$2,513,000</div>
     </div>
-    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-      <div style="flex:1 1 160px; background:#220e0e; border:1px solid #3a1a1a; border-radius:10px; padding:10px 14px;">
-        <div style="font-size:.72rem; color:#888; margin-bottom:2px;">Depto Arenales</div>
-        <div style="font-size:1.05rem; font-weight:700; color:var(--yellow);">$132,000</div>
-        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">8 cuotas × $16,500</div>
-      </div>
-      <div style="flex:1 1 160px; background:#220e0e; border:1px solid #3a1a1a; border-radius:10px; padding:10px 14px;">
-        <div style="font-size:.72rem; color:#888; margin-bottom:2px;">Geriátrico</div>
-        <div style="font-size:1.05rem; font-weight:700; color:var(--red);">$250,000</div>
-        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">Capital restante</div>
-      </div>
-      <div style="flex:1 1 160px; background:#220e0e; border:1px solid #3a1a1a; border-radius:10px; padding:10px 14px;">
-        <div style="font-size:.72rem; color:#888; margin-bottom:2px;">Edificio Bronx</div>
-        <div style="font-size:1.05rem; font-weight:700; color:var(--red);">$500,000</div>
-        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">Capital total pendiente</div>
-      </div>
-      <div style="flex:1 1 160px; background:#2a0d0d; border:1px solid #5a1a1a; border-radius:10px; padding:10px 14px;">
-        <div style="font-size:.72rem; color:#f87171; margin-bottom:2px; font-weight:600;">TOTAL A PAGAR</div>
-        <div style="font-size:1.25rem; font-weight:800; color:#fff;">$882,000</div>
-        <div style="font-size:.67rem; color:var(--muted); margin-top:1px;">En las 3 propiedades</div>
-      </div>
-    </div>
-  </div>
-</div>
+    <div class="total-sub" id="total-sub" style="margin-top:16px;">Lo invertido hasta hoy · Calculado</div>
+  </header>
 
-<!-- ── QUICK STATS ── -->
-<div class="stats">
-  <div class="stat">
-    <div class="stat-val c-green">$1,530,000</div>
-    <div class="stat-lbl">Bolsa</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val c-blue" id="stat-prop">$900,000</div>
-    <div class="stat-lbl" id="stat-prop-lbl">Propiedades (invertido)</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val c-purple">$83,000</div>
-    <div class="stat-lbl">Cash</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val c-orange">$13,000 <small>/mes</small></div>
-    <div class="stat-lbl">Renta negocios</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val c-yellow">$12,500 <small>/mes</small></div>
-    <div class="stat-lbl">Renta propiedades</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" style="color:#e879f9;">$36,000 <small>/mes</small></div>
-    <div class="stat-lbl">Objetivo negocios</div>
-  </div>
-</div>
-
-<!-- ── MAIN GRID ── -->
-<div class="grid">
-
-  <!-- BOLSA -->
-  <div class="card">
-    <div class="card-head">
-      <div class="icon bg-green">📈</div>
-      <div class="card-title">Bolsa / Inversiones</div>
-    </div>
-
-    <div class="row">
-      <div class="row-left">
-        <div class="row-name">Veta</div>
-        <div class="row-note">Cuenta local · posición al 4/11</div>
+  <!-- FALTA PAGAR -->
+  <div class="alert-bar">
+    <div class="alert-label">Falta pagar — Propiedades</div>
+    <div class="alert-items">
+      <div class="alert-item">
+        <div class="ai-name">Depto Arenales</div>
+        <div class="ai-val c-amb">$132,000</div>
+        <div class="ai-note">8 cuotas × $16,500</div>
       </div>
-      <div class="row-right">
-        <div class="row-val c-green">$1,500,000</div>
+      <div class="alert-item">
+        <div class="ai-name">Geriátrico</div>
+        <div class="ai-val c-rose">$250,000</div>
+        <div class="ai-note">Capital restante</div>
+      </div>
+      <div class="alert-item">
+        <div class="ai-name">Edificio Bronx</div>
+        <div class="ai-val c-rose">$500,000</div>
+        <div class="ai-note">Capital total pendiente</div>
+      </div>
+      <div class="alert-item ai-total">
+        <div class="ai-name">Total a pagar</div>
+        <div class="ai-val">$882,000</div>
+        <div class="ai-note">En 3 propiedades</div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="row-left">
-        <div class="row-name">CAFE</div>
-        <div class="row-note">Cuenta en el exterior</div>
+    <!-- CAPITAL GAP -->
+    <div class="gap-wrap">
+      <div class="gap-label">
+        <div class="gap-title">💰 Capital disponible vs. lo que falta</div>
+        <div class="gap-nums">Cash actual: <strong>$83,000</strong> de $882,000 necesarios</div>
       </div>
-      <div class="row-right">
-        <div class="row-val c-green">$30,000</div>
+      <div class="gap-track">
+        <div class="gap-fill"></div>
       </div>
-    </div>
-
-    <div class="subtotal">
-      <div class="subtotal-lbl">Subtotal</div>
-      <div class="subtotal-val c-green">$1,530,000</div>
+      <div class="gap-pct">
+        <span><strong>9.4%</strong> cubierto con el cash actual</span>
+        <span>Faltan juntar <strong style="color:var(--rose);">$799,000</strong></span>
+      </div>
     </div>
   </div>
 
-  <!-- CASH -->
-  <div class="card">
-    <div class="card-head">
-      <div class="icon bg-purple">💵</div>
-      <div class="card-title">Cash</div>
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-v c-em">$1,530,000</div>
+      <div class="stat-l">Bolsa</div>
     </div>
-
-    <div class="row">
-      <div class="row-left"><div class="row-name">Ofi Lucho</div></div>
-      <div class="row-right"><div class="row-val c-purple">$40,000</div></div>
+    <div class="stat">
+      <div class="stat-v c-sky" id="stat-prop">$900,000</div>
+      <div class="stat-l" id="stat-prop-l">Propiedades invertido</div>
     </div>
-
-    <div class="row">
-      <div class="row-left"><div class="row-name">PSEC</div></div>
-      <div class="row-right"><div class="row-val c-purple">$23,000</div></div>
+    <div class="stat">
+      <div class="stat-v c-vio">$83,000</div>
+      <div class="stat-l">Cash</div>
     </div>
-
-    <div class="row">
-      <div class="row-left"><div class="row-name">Veta</div></div>
-      <div class="row-right"><div class="row-val c-purple">$20,000</div></div>
+    <div class="stat">
+      <div class="stat-v c-amb">$25,500 <small>/mes</small></div>
+      <div class="stat-l">Renta total actual</div>
     </div>
-
-    <div class="subtotal">
-      <div class="subtotal-lbl">Subtotal</div>
-      <div class="subtotal-val c-purple">$83,000</div>
+    <div class="stat">
+      <div class="stat-v c-ind">$306,000 <small>/año</small></div>
+      <div class="stat-l">Ingreso anual actual</div>
+    </div>
+    <div class="stat">
+      <div class="stat-v" style="color:#9333ea;">$582,000 <small>/año</small></div>
+      <div class="stat-l">Ingreso anual objetivo</div>
     </div>
   </div>
 
-  <!-- PROPIEDADES (wide) -->
-  <div class="card col-wide">
-    <div class="card-head">
-      <div class="icon bg-blue">🏢</div>
-      <div class="card-title">Propiedades</div>
-    </div>
+  <!-- GRID -->
+  <div class="grid">
 
-    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 0 36px;">
-
+    <!-- BOLSA -->
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--em),#34d399);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#d1fae5;">📈</div>
+        <div class="card-title">Bolsa / Inversiones</div>
+      </div>
       <div class="row">
-        <div class="row-left">
-          <div class="row-name">
-            Pueyrredón
-            <span class="mult bg-green">×2</span>
+        <div class="rl">
+          <div class="rn">Veta</div>
+          <div class="rno">Cuenta local · posición al 4/11</div>
+        </div>
+        <div class="rr"><div class="rv c-em">$1,500,000</div></div>
+      </div>
+      <div class="row">
+        <div class="rl">
+          <div class="rn">CAFE</div>
+          <div class="rno">Cuenta en el exterior</div>
+        </div>
+        <div class="rr"><div class="rv c-em">$30,000</div></div>
+      </div>
+      <div class="sub-line">
+        <div class="sub-l">Subtotal</div>
+        <div class="sub-v c-em">$1,530,000</div>
+      </div>
+    </div>
+
+    <!-- CASH -->
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--vio),#a855f7);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#ede9fe;">💵</div>
+        <div class="card-title">Cash</div>
+      </div>
+      <div class="row">
+        <div class="rl"><div class="rn">Ofi Lucho</div></div>
+        <div class="rr"><div class="rv c-vio">$40,000</div></div>
+      </div>
+      <div class="row">
+        <div class="rl"><div class="rn">PSEC</div></div>
+        <div class="rr"><div class="rv c-vio">$23,000</div></div>
+      </div>
+      <div class="row">
+        <div class="rl"><div class="rn">Veta</div></div>
+        <div class="rr"><div class="rv c-vio">$20,000</div></div>
+      </div>
+      <div class="sub-line">
+        <div class="sub-l">Subtotal</div>
+        <div class="sub-v c-vio">$83,000</div>
+      </div>
+    </div>
+
+    <!-- DONUT — distribución PN -->
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--ind),#818cf8);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#e0e7ff;">🥧</div>
+        <div class="card-title">Distribución del PN</div>
+      </div>
+      <div class="donut-wrap">
+        <div class="donut-chart" id="donut-chart">
+          <div class="donut-center">
+            <div class="donut-center-val" id="donut-total">$2.5M</div>
+            <div class="donut-center-lbl">Total</div>
           </div>
-          <div class="row-note">Invertido: $400,000</div>
         </div>
-        <div class="row-right">
-          <div class="row-val c-blue prop-costo" >$400,000</div>
-          <div class="row-val c-green prop-mercado" style="display:none;">$800,000</div>
-          <div class="row-val-secondary prop-mercado" style="display:none; color:var(--green);">+$400k ganancia</div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="row-left">
-          <div class="row-name">
-            La Dolfina
-            <span class="mult bg-green">×4</span>
+        <div class="donut-legend">
+          <div class="dl-item">
+            <div class="dl-dot" style="background:var(--em);"></div>
+            <div class="dl-body">
+              <div class="dl-name">Bolsa</div>
+              <div class="dl-val">$1,530,000</div>
+            </div>
+            <div class="dl-pct c-em">61%</div>
           </div>
-          <div class="row-note">Invertido: $150,000</div>
-        </div>
-        <div class="row-right">
-          <div class="row-val c-blue prop-costo">$150,000</div>
-          <div class="row-val c-green prop-mercado" style="display:none;">$600,000</div>
-          <div class="row-val-secondary prop-mercado" style="display:none; color:var(--green);">+$450k ganancia</div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="row-left">
-          <div class="row-name">Depto Arenales</div>
-          <div class="row-note">Invertido: $100,000</div>
-          <span class="pending pending-amber">⏳ 8 cuotas × $16,500 pendientes ($132k)</span>
-        </div>
-        <div class="row-right">
-          <div class="row-val c-blue">$100,000</div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="row-left">
-          <div class="row-name">Geriátrico</div>
-          <div class="row-note">Invertido: $250,000</div>
-          <span class="pending pending-red">🔴 Faltan $250,000 poner</span>
-        </div>
-        <div class="row-right">
-          <div class="row-val c-blue">$250,000</div>
-          <div class="row-badge">💰 $6,250 / mes</div>
+          <div class="dl-item">
+            <div class="dl-dot" style="background:var(--sky);"></div>
+            <div class="dl-body">
+              <div class="dl-name" id="donut-prop-name">Propiedades</div>
+              <div class="dl-val" id="donut-prop-val">$900,000</div>
+            </div>
+            <div class="dl-pct c-sky" id="donut-prop-pct">36%</div>
+          </div>
+          <div class="dl-item">
+            <div class="dl-dot" style="background:var(--vio);"></div>
+            <div class="dl-body">
+              <div class="dl-name">Cash</div>
+              <div class="dl-val">$83,000</div>
+            </div>
+            <div class="dl-pct c-vio" id="donut-cash-pct">3%</div>
+          </div>
         </div>
       </div>
-
-      <div class="row">
-        <div class="row-left">
-          <div class="row-name">Edificio Bronx</div>
-          <div class="row-note">Invertido: $0</div>
-          <span class="pending pending-red">🔴 Faltan $500,000 poner</span>
-        </div>
-        <div class="row-right">
-          <div class="row-val c-muted">$0</div>
-          <div class="row-badge">💰 $6,250 / mes</div>
-        </div>
-      </div>
-
     </div>
 
-    <div class="subtotal">
-      <div>
-        <div class="subtotal-lbl">Invertido · Renta mensual</div>
-        <div style="font-size:.68rem; color:var(--muted); margin-top:3px;">
-          Geriátrico + Bronx: $12,500/mes cuando estén completos
-        </div>
+    <!-- PROYECCIÓN ANUAL -->
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,#9333ea,#c084fc);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#faf5ff;">📅</div>
+        <div class="card-title">Proyección anual de rentas</div>
       </div>
-      <div class="subtotal-right">
+
+      <div class="proj-row">
         <div>
-          <span class="subtotal-val c-blue prop-costo">$900,000</span>
-          <span class="subtotal-val c-green prop-mercado" style="display:none;">$1,750,000</span>
-          <span style="font-size:.8rem; color:var(--muted); margin-left:10px;">$12,500 / mes</span>
+          <div class="proj-label">Negocios (hoy)</div>
+          <div class="proj-sub">Veta + Off-Shore</div>
         </div>
-        <div class="prop-mercado" style="display:none; font-size:.72rem; color:var(--green); margin-top:3px;">
-          +$850k vs. costo
+        <div class="proj-vals">
+          <div class="proj-mes c-sub">$13,000/mes</div>
+          <div class="proj-anio c-amb">$156,000/año</div>
+        </div>
+      </div>
+
+      <div class="proj-row">
+        <div>
+          <div class="proj-label">Propiedades (hoy)</div>
+          <div class="proj-sub">Geriátrico + Bronx</div>
+        </div>
+        <div class="proj-vals">
+          <div class="proj-mes c-sub">$12,500/mes</div>
+          <div class="proj-anio c-sky">$150,000/año</div>
+        </div>
+      </div>
+
+      <div class="proj-row" style="background:#f8f9ff; margin:0 -4px; padding:10px 4px; border-radius:8px; border-bottom:none;">
+        <div>
+          <div class="proj-label" style="font-weight:700;">Total actual</div>
+        </div>
+        <div class="proj-vals">
+          <div class="proj-mes c-sub">$25,500/mes</div>
+          <div class="proj-anio c-ind" style="font-size:1.1rem;">$306,000/año</div>
+        </div>
+      </div>
+
+      <hr class="proj-divider"/>
+
+      <div class="proj-row">
+        <div>
+          <div class="proj-label">Negocios (objetivo)</div>
+          <div class="proj-sub">Veta + Off + Lili + nuevo</div>
+        </div>
+        <div class="proj-vals">
+          <div class="proj-mes c-sub">$36,000/mes</div>
+          <div class="proj-anio" style="color:#9333ea;">$432,000/año</div>
+        </div>
+      </div>
+
+      <div class="proj-row" style="background:#fdf4ff; margin:0 -4px; padding:10px 4px; border-radius:8px; border-bottom:none;">
+        <div>
+          <div class="proj-label" style="font-weight:700;">Total objetivo</div>
+        </div>
+        <div class="proj-vals">
+          <div class="proj-mes c-sub">$48,500/mes</div>
+          <div class="proj-anio" style="color:#9333ea; font-size:1.2rem;">$582,000/año</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- NEGOCIOS -->
-  <div class="card col-wide">
-    <div class="card-head">
-      <div class="icon bg-orange">💼</div>
-      <div class="card-title">Negocios — Renta mensual</div>
+    <!-- PROPIEDADES -->
+    <div class="card wide">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--sky),#38bdf8);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#e0f2fe;">🏢</div>
+        <div class="card-title">Propiedades</div>
+        <span style="margin-left:auto; font-size:.65rem; color:var(--sub);">ROI = renta anual / invertido</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:0 40px;">
+
+        <div class="row">
+          <div class="rl">
+            <div class="rn">Pueyrredón <span class="mult">×2</span></div>
+            <div class="rno">Invertido $400,000</div>
+            <span class="roi roi-na">ROI: sin renta definida</span>
+          </div>
+          <div class="rr">
+            <div class="rv c-sky prop-costo">$400,000</div>
+            <div class="rv c-em prop-mercado" style="display:none;">$800,000</div>
+            <div class="rv2 c-em prop-mercado" style="display:none;">+$400k</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="rl">
+            <div class="rn">La Dolfina <span class="mult">×4</span></div>
+            <div class="rno">Invertido $150,000</div>
+            <span class="roi roi-na">ROI: sin renta definida</span>
+          </div>
+          <div class="rr">
+            <div class="rv c-sky prop-costo">$150,000</div>
+            <div class="rv c-em prop-mercado" style="display:none;">$600,000</div>
+            <div class="rv2 c-em prop-mercado" style="display:none;">+$450k</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="rl">
+            <div class="rn">Depto Arenales</div>
+            <div class="rno">Invertido $100,000</div>
+            <span class="tag tag-amb">⏳ 8 × $16,500 pendientes</span><br/>
+            <span class="roi roi-na">ROI: sin renta definida</span>
+          </div>
+          <div class="rr"><div class="rv c-sky">$100,000</div></div>
+        </div>
+
+        <div class="row">
+          <div class="rl">
+            <div class="rn">Geriátrico</div>
+            <div class="rno">Invertido $250,000</div>
+            <span class="tag tag-rose">🔴 $250k pendientes</span><br/>
+            <span class="roi">📈 ROI: 15%/año sobre $500k total</span>
+          </div>
+          <div class="rr">
+            <div class="rv c-sky">$250,000</div>
+            <div class="badge badge-sky">💰 $6,250/mes</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="rl">
+            <div class="rn">Edificio Bronx</div>
+            <div class="rno">Invertido $0</div>
+            <span class="tag tag-rose">🔴 $500k pendientes</span><br/>
+            <span class="roi">📈 ROI: 15%/año sobre $500k total</span>
+          </div>
+          <div class="rr">
+            <div class="rv c-sub">$0</div>
+            <div class="badge badge-sky">💰 $6,250/mes</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sub-line">
+        <div>
+          <div class="sub-l">Invertido · Renta mensual</div>
+          <div style="font-size:.63rem; color:var(--sub); margin-top:3px;">Geriátrico + Bronx generan $12,500/mes</div>
+        </div>
+        <div class="sub-r">
+          <span class="sub-v c-sky prop-costo">$900,000</span>
+          <span class="sub-v c-em prop-mercado" style="display:none;">$1,750,000</span>
+          <span class="prop-mercado" style="display:none; font-size:.7rem; color:var(--em); margin-left:8px;">+$850k vs costo</span>
+          <span style="font-size:.76rem; color:var(--sub); margin-left:10px;">· $12,500/mes</span>
+        </div>
+      </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 0 36px;">
-
-      <div class="negocio">
-        <div class="neg-top">
-          <div class="neg-name">Veta</div>
-          <div class="neg-amounts">
-            <span class="neg-current c-orange">$12,000</span>
-            <span class="neg-target"> → obj. $20,000 / mes</span>
-          </div>
-        </div>
-        <div class="bar-wrap">
-          <div class="bar-fill" style="width:60%; background:var(--orange);"></div>
-        </div>
-        <div class="neg-note">60% del objetivo · faltan $8,000/mes</div>
+    <!-- NEGOCIOS -->
+    <div class="card wide">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--amb),#f59e0b);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#fef3c7;">💼</div>
+        <div class="card-title">Negocios — Renta mensual</div>
       </div>
 
-      <div class="negocio">
-        <div class="neg-top">
-          <div class="neg-name">Cuentas Off-Shore</div>
-          <div class="neg-amounts">
-            <span class="neg-current c-orange">$1,000</span>
-            <span class="neg-target"> → obj. $6,000 / mes</span>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:0 40px;">
+
+        <div class="neg">
+          <div class="neg-top">
+            <div class="neg-name">Veta</div>
+            <div class="neg-nums">
+              <span class="neg-cur c-amb">$12,000</span>
+              <span class="neg-tgt"> → $20,000/mes</span>
+            </div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:60%; background:var(--amb); animation-delay:.1s;"></div>
+          </div>
+          <div class="neg-foot">
+            <div class="neg-note">Faltan $8,000/mes</div>
+            <div class="neg-pct c-amb">60%</div>
           </div>
         </div>
-        <div class="bar-wrap">
-          <div class="bar-fill" style="width:17%; background:var(--yellow);"></div>
-        </div>
-        <div class="neg-note">17% del objetivo · mayor upside</div>
-      </div>
 
-      <div class="negocio">
-        <div class="neg-top">
-          <div class="neg-name">Lili Pink <span style="font-size:.7rem; color:var(--muted); font-weight:400;">marca de ropa</span></div>
-          <div class="neg-amounts">
-            <span class="neg-current c-muted">$0</span>
-            <span class="neg-target"> → obj. $10,000 / mes</span>
+        <div class="neg">
+          <div class="neg-top">
+            <div class="neg-name">Cuentas Off-Shore</div>
+            <div class="neg-nums">
+              <span class="neg-cur c-amb">$1,000</span>
+              <span class="neg-tgt"> → $6,000/mes</span>
+            </div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:17%; background:var(--ind); animation-delay:.2s;"></div>
+          </div>
+          <div class="neg-foot">
+            <div class="neg-note">Mayor upside · faltan $5,000/mes</div>
+            <div class="neg-pct c-ind">17%</div>
           </div>
         </div>
-        <div class="bar-wrap">
-          <div class="bar-fill" style="width:0%; background:var(--red);"></div>
-        </div>
-        <div class="neg-note">Sin ingresos todavía</div>
-      </div>
 
-      <div class="negocio">
-        <div class="neg-top">
-          <div class="neg-name" style="color:var(--muted);">+ Nuevo negocio <span style="font-size:.7rem;">(por definir)</span></div>
-          <div class="neg-amounts">
-            <span class="neg-current c-muted">$0</span>
-            <span class="neg-target"> → obj. TBD</span>
+        <div class="neg">
+          <div class="neg-top">
+            <div class="neg-name">Lili Pink <span style="font-size:.7rem; color:var(--sub); font-weight:400;">· marca de ropa</span></div>
+            <div class="neg-nums">
+              <span class="neg-cur c-sub">$0</span>
+              <span class="neg-tgt"> → $10,000/mes</span>
+            </div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%; background:var(--rose); animation-delay:.3s;"></div>
+          </div>
+          <div class="neg-foot">
+            <div class="neg-note">Sin ingresos todavía</div>
+            <div class="neg-pct c-rose">0%</div>
           </div>
         </div>
-        <div class="bar-wrap">
-          <div class="bar-fill" style="width:0%; background:#333;"></div>
+
+        <div class="neg">
+          <div class="neg-top">
+            <div class="neg-name" style="color:var(--sub);">+ Nuevo negocio <span style="font-size:.7rem;">(por definir)</span></div>
+            <div class="neg-nums">
+              <span class="neg-cur c-sub">$0</span>
+              <span class="neg-tgt"> → TBD</span>
+            </div>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%; background:#ccc; animation-delay:.4s;"></div>
+          </div>
+          <div class="neg-foot">
+            <div class="neg-note">Pendiente identificar</div>
+            <div class="neg-pct c-sub">—</div>
+          </div>
         </div>
-        <div class="neg-note">Pendiente identificar</div>
+
       </div>
 
+      <div class="sub-line">
+        <div>
+          <div class="sub-l">Renta negocios actual</div>
+          <div style="font-size:.63rem; color:var(--sub); margin-top:3px;">Objetivo cuando todo esté completo</div>
+        </div>
+        <div class="sub-r">
+          <div class="sub-v c-amb">$13,000 <span style="font-size:.8rem; font-weight:400; color:var(--sub);">/mes</span></div>
+          <div style="font-size:.82rem; color:#9333ea; font-weight:800; margin-top:2px;">→ $36,000+/mes</div>
+        </div>
+      </div>
     </div>
 
-    <div class="subtotal">
-      <div>
-        <div class="subtotal-lbl">Renta actual total</div>
-        <div style="font-size:.68rem; color:var(--muted); margin-top:3px;">Cuando se llegue al objetivo</div>
-      </div>
-      <div class="subtotal-right">
-        <div class="subtotal-val c-orange">$13,000 <span style="font-size:.8rem; font-weight:400; color:var(--muted);">/ mes</span></div>
-        <div style="font-size:.85rem; color:var(--yellow); font-weight:700; margin-top:2px;">→ $36,000+ / mes</div>
-      </div>
-    </div>
-  </div>
+  </div><!-- /grid -->
 
+  <footer>David & Fede · Solo uso interno · Abril 2026</footer>
 </div>
-
-<footer>David & Fede PN · Solo para uso interno · Abril 2026</footer>
 
 <script>
-  const COSTO   = 2513000;
-  const MERCADO = 3363000;
-
-  function fmt(n) {
-    return '$' + n.toLocaleString('es-AR');
-  }
-
   function setView(v) {
-    const isMercado = v === 'mercado';
-
+    const m = v === 'mercado';
     document.querySelectorAll('.pn-btn').forEach(b => b.classList.remove('active'));
     document.querySelector(`.pn-btn[onclick="setView('${v}')"]`).classList.add('active');
 
-    document.getElementById('total-display').textContent = fmt(isMercado ? MERCADO : COSTO);
-    document.getElementById('total-sub').textContent = isMercado
+    document.getElementById('total-num').textContent = m ? '$3,363,000' : '$2,513,000';
+    document.getElementById('total-sub').textContent = m
       ? 'A valor de mercado estimado · Calculado'
       : 'Lo invertido hasta hoy · Calculado';
 
-    document.getElementById('stat-prop').textContent      = isMercado ? '$1,750,000' : '$900,000';
-    document.getElementById('stat-prop-lbl').textContent  = isMercado ? 'Propiedades (mercado)' : 'Propiedades (invertido)';
+    document.getElementById('stat-prop').textContent   = m ? '$1,750,000' : '$900,000';
+    document.getElementById('stat-prop-l').textContent  = m ? 'Propiedades mercado' : 'Propiedades invertido';
 
-    document.querySelectorAll('.prop-costo').forEach(el => el.style.display  = isMercado ? 'none' : '');
-    document.querySelectorAll('.prop-mercado').forEach(el => el.style.display = isMercado ? ''     : 'none');
+    // donut chart update
+    const propPct  = m ? 84.1 : 35.8;   // 1750/2513 vs 900/2513 (over total costo)
+    const cashPct  = m ? 2.5  : 3.3;
+    const bolsaPct = m ? 45.5 : 60.9;   // 1530/3363
+
+    document.getElementById('donut-chart').style.background = `conic-gradient(
+      var(--em)  0% ${bolsaPct.toFixed(1)}%,
+      var(--sky) ${bolsaPct.toFixed(1)}% ${(bolsaPct+propPct).toFixed(1)}%,
+      var(--vio) ${(bolsaPct+propPct).toFixed(1)}% 100%
+    )`;
+    document.getElementById('donut-total').textContent      = m ? '$3.4M' : '$2.5M';
+    document.getElementById('donut-prop-name').textContent  = m ? 'Prop. (mercado)' : 'Propiedades';
+    document.getElementById('donut-prop-val').textContent   = m ? '$1,750,000' : '$900,000';
+    document.getElementById('donut-prop-pct').textContent   = m ? '52%' : '36%';
+    document.getElementById('donut-cash-pct').textContent   = m ? '2%' : '3%';
+
+    document.querySelectorAll('.prop-costo').forEach(e   => e.style.display = m ? 'none' : '');
+    document.querySelectorAll('.prop-mercado').forEach(e => e.style.display = m ? ''     : 'none');
   }
 </script>
-
 </body>
 </html>
