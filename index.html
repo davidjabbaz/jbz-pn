@@ -55,6 +55,8 @@
     }
     .tb-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateY(-1px); }
     .tb-btn.primary { background: var(--ind); border-color: var(--ind); color: #fff; }
+    .logout-btn { display: none; }
+    body.authed .logout-btn { display: inline-flex; }
 
     /* ── Header ── */
     .header { text-align: center; margin-bottom: 44px; }
@@ -419,6 +421,7 @@
 <div class="toolbar">
   <button class="tb-btn" onclick="document.getElementById('veta-input').click()">📁 Importar de Veta</button>
   <button class="tb-btn primary" onclick="openEditor()">✏️ Editar cartera</button>
+  <button class="tb-btn logout-btn" onclick="doLogout()">🔒 Salir</button>
   <input type="file" id="veta-input" accept=".xls,.html,.htm,.csv" style="display:none" onchange="handleImport(this)" />
 </div>
 
@@ -723,6 +726,27 @@
   </div>
 </div>
 
+<!-- ── LOGIN (acceso privado compartido) ── -->
+<div class="overlay" id="login-overlay">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head"><div class="modal-title">🔒 Iniciá sesión</div></div>
+    <div class="modal-body">
+      <p class="hint" style="margin-bottom:14px;">Acceso privado — David &amp; Fede.</p>
+      <div class="ed-row"><input class="name" id="login-email" type="email" placeholder="Email" style="flex:1" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="ed-row"><input class="name" id="login-pass" type="password" placeholder="Contraseña" style="flex:1" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div id="login-error" style="color:var(--rose); font-size:.75rem; min-height:18px; margin-top:4px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn primary" style="margin-left:auto;" onclick="doLogin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <script>
 /* ============================================================
    FUENTE ÚNICA DE DATOS — editá acá (o desde "Editar cartera")
@@ -758,6 +782,23 @@ const STORE_KEY = 'cartera_pn_v2';
 let DATA = load();
 let VIEW = 'costo';
 
+/* ══════════════════════════════════════════════════════════
+   FIREBASE — datos compartidos entre David y Fede, con login.
+   Pegá acá el config de tu proyecto:
+   Firebase console → ⚙ Configuración del proyecto → Tus apps → Web (</>) → firebaseConfig
+   ══════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyD21QtcU3y_K_-15TzrfD040SMFYmEgjlM",
+  authDomain:        "jbz-fyd.firebaseapp.com",
+  projectId:         "jbz-fyd",
+  storageBucket:     "jbz-fyd.firebasestorage.app",
+  messagingSenderId: "21429353475",
+  appId:             "1:21429353475:web:6de5fd9637d29dcceae236",
+};
+// Si el config todavía no está cargado, funciona en modo local (solo tu navegador).
+const CLOUD = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PEGA');
+let cloudRef = null, saveTimer = null, applyingRemote = false;
+
 /* ── Helpers ── */
 const fmt  = n => '$' + Math.round(n).toLocaleString('en-US');
 const fmtM = n => '$' + (n / 1e6).toFixed(1) + 'M';
@@ -772,6 +813,7 @@ function load() {
 }
 function persist() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); } catch (e) {}
+  cloudSave();
 }
 
 /* ── Cálculos derivados ── */
@@ -1424,8 +1466,50 @@ document.addEventListener('keydown', e => {
   else goMain();
 });
 
+/* ══ Sincronización en la nube (Firebase) ══ */
+function cloudSave() {
+  if (!CLOUD || !cloudRef || applyingRemote) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    cloudRef.set({ data: DATA, updatedAt: Date.now() }).catch(e => console.error('cloud save', e));
+  }, 400);
+}
+function initCloud() {
+  firebase.initializeApp(firebaseConfig);
+  cloudRef = firebase.firestore().collection('app').doc('cartera');
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('login-overlay').classList.remove('open');
+      document.body.classList.add('authed');
+      cloudRef.onSnapshot(snap => {
+        const d = snap.exists ? snap.data() : null;
+        if (d && d.data) {
+          applyingRemote = true; DATA = d.data; render(); applyingRemote = false;
+        } else {
+          // Primer uso: sembrar la nube con lo que haya localmente
+          cloudRef.set({ data: DATA, updatedAt: Date.now() }).catch(e => console.error('seed', e));
+        }
+      }, e => console.error('cloud snapshot', e));
+    } else {
+      document.body.classList.remove('authed');
+      document.getElementById('login-overlay').classList.add('open');
+    }
+  });
+}
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  err.textContent = 'Entrando…';
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .then(() => { err.textContent = ''; })
+    .catch(() => { err.textContent = 'Email o contraseña incorrectos.'; });
+}
+function doLogout() { if (CLOUD && typeof firebase !== 'undefined') firebase.auth().signOut(); }
+
 /* ── Init ── */
 render();
+if (CLOUD && typeof firebase !== 'undefined') initCloud();
 </script>
 </body>
 </html>
