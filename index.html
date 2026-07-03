@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="referrer" content="no-referrer" />
   <title>David & Fede — PN</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -38,6 +40,21 @@
     }
 
     .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 48px 20px 80px; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      position: fixed; top: 14px; right: 14px; z-index: 50;
+      display: flex; gap: 8px;
+    }
+    .tb-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: inherit; font-size: .7rem; font-weight: 600;
+      padding: 8px 13px; border-radius: 10px; cursor: pointer;
+      background: #fff; border: 1px solid var(--border); color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,.06); transition: all .18s;
+    }
+    .tb-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateY(-1px); }
+    .tb-btn.primary { background: var(--ind); border-color: var(--ind); color: #fff; }
 
     /* ── Header ── */
     .header { text-align: center; margin-bottom: 44px; }
@@ -111,7 +128,7 @@
     .gap-wrap { margin-top: 16px; padding-top: 14px; border-top: 1px solid #fccdd5; }
     .gap-label {
       display: flex; justify-content: space-between; align-items: baseline;
-      margin-bottom: 8px;
+      margin-bottom: 8px; gap: 10px; flex-wrap: wrap;
     }
     .gap-title { font-size: .65rem; font-weight: 700; color: var(--rose); text-transform: uppercase; letter-spacing: .1em; }
     .gap-nums  { font-size: .7rem; color: var(--sub); }
@@ -120,13 +137,12 @@
     .gap-fill  {
       height: 100%; border-radius: 99px;
       background: linear-gradient(90deg, var(--em), #34d399);
-      width: 9.4%;
       transform: scaleX(0); transform-origin: left;
       animation: growBar .9s ease .3s forwards;
     }
     .gap-pct {
       font-size: .65rem; color: var(--sub); margin-top: 5px;
-      display: flex; justify-content: space-between;
+      display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
     }
     .gap-pct strong { color: var(--em); }
 
@@ -229,11 +245,6 @@
     .donut-chart {
       width: 130px; height: 130px; border-radius: 50%; flex-shrink: 0;
       position: relative;
-      background: conic-gradient(
-        var(--em)  0%       60.88%,
-        var(--sky) 60.88%   96.70%,
-        var(--vio) 96.70%  100%
-      );
     }
     .donut-chart::after {
       content: ''; position: absolute; inset: 26px;
@@ -306,10 +317,114 @@
       font-size: .63rem; color: #b0b8cc;
       letter-spacing: .1em; text-transform: uppercase;
     }
+
+    /* ── Editor modal ── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(20,22,40,.45); backdrop-filter: blur(3px);
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 40px 16px; overflow-y: auto;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--s1); border-radius: 18px; width: 100%; max-width: 640px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: hidden;
+    }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .modal-title { font-size: 1rem; font-weight: 800; }
+    .modal-x {
+      cursor: pointer; border: none; background: #f0f2f8; color: var(--sub);
+      width: 30px; height: 30px; border-radius: 8px; font-size: 1rem; font-weight: 700;
+    }
+    .modal-body { padding: 20px 24px; max-height: 62vh; overflow-y: auto; }
+    .modal-foot {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 16px 24px; border-top: 1px solid var(--border); background: #fafbff;
+      flex-wrap: wrap;
+    }
+    .ed-sec { margin-bottom: 22px; }
+    .ed-sec-title {
+      font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--ind); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .ed-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .ed-row input {
+      font-family: inherit; font-size: .82rem; padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text);
+    }
+    .ed-row input.name { flex: 1 1 auto; min-width: 90px; }
+    .ed-row input.num  { width: 130px; text-align: right; font-variant-numeric: tabular-nums; }
+    .ed-row .del {
+      cursor: pointer; border: none; background: #fef2f2; color: var(--rose);
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; font-weight: 700;
+    }
+    .ed-add {
+      cursor: pointer; border: 1px dashed var(--border); background: #fff; color: var(--ind);
+      font-family: inherit; font-size: .72rem; font-weight: 600;
+      padding: 6px 12px; border-radius: 8px; margin-top: 4px;
+    }
+    .ed-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
+    .ed-prop {
+      border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px;
+    }
+    .ed-prop-name { font-size: .8rem; font-weight: 700; margin-bottom: 8px; }
+    .ed-fields { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ed-field { display: flex; flex-direction: column; gap: 3px; }
+    .ed-field label { font-size: .58rem; color: var(--sub); text-transform: uppercase; letter-spacing: .06em; }
+    .ed-field input { width: 110px; }
+    .btn {
+      font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer;
+      padding: 9px 18px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: var(--text);
+    }
+    .btn.primary { background: var(--ind); border-color: var(--ind); color: #fff; }
+    .btn.ghost   { background: transparent; border: none; color: var(--sub); }
+    .hint { font-size: .68rem; color: var(--sub); }
+    .import-note {
+      background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px;
+      padding: 12px 14px; font-size: .72rem; color: #0369a1; margin-bottom: 16px; line-height: 1.5;
+    }
+    /* ── Vistas de detalle (drill-down) ── */
+    .detail-view { display: none; }
+    body.v-bolsa #view-main, body.v-prop #view-main { display: none; }
+    body.v-bolsa #view-bolsa, body.v-prop #view-prop { display: block; }
+    .detail-head { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
+    .detail-head h2 { font-size: 1.15rem; font-weight: 800; letter-spacing: -.01em; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: inherit; font-size: .78rem; font-weight: 600; cursor: pointer;
+      padding: 9px 15px; border-radius: 10px;
+      background: #fff; border: 1px solid var(--border); color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,.06); transition: all .18s;
+    }
+    .back-btn:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateX(-2px); }
+    .card.clickable { cursor: pointer; }
+    .card.clickable:hover { box-shadow: 0 6px 24px rgba(0,0,0,.12); transform: translateY(-2px); }
+    .card-more {
+      margin-left: auto; font-size: .68rem; font-weight: 700; color: var(--ind);
+      display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;
+    }
+    .detail-view .card { margin-bottom: 14px; }
+
+    @media (max-width: 520px) {
+      .toolbar { position: static; justify-content: center; margin-bottom: 16px; }
+    }
   </style>
 </head>
 <body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="tb-btn" onclick="document.getElementById('veta-input').click()">📁 Importar de Veta</button>
+  <button class="tb-btn primary" onclick="openEditor()">✏️ Editar cartera</button>
+  <input type="file" id="veta-input" accept=".xls,.html,.htm,.csv" style="display:none" onchange="handleImport(this)" />
+</div>
+
 <div class="wrap">
+
+  <div id="view-main">
 
   <!-- HEADER -->
   <header class="header">
@@ -319,11 +434,11 @@
       <span>Patrimonio Neto</span>
     </div><br/>
     <div class="pn-toggle">
-      <button class="pn-btn active" onclick="setView('costo')">A costo</button>
-      <button class="pn-btn" onclick="setView('mercado')">A mercado</button>
+      <button class="pn-btn active" data-view="costo" onclick="setView('costo')">A costo</button>
+      <button class="pn-btn" data-view="mercado" onclick="setView('mercado')">A mercado</button>
     </div><br/>
     <div class="glow-wrap">
-      <div class="total-num" id="total-num">$2,513,000</div>
+      <div class="total-num" id="total-num">$0</div>
     </div>
     <div class="total-sub" id="total-sub" style="margin-top:16px;">Lo invertido hasta hoy · Calculado</div>
   </header>
@@ -331,100 +446,42 @@
   <!-- FALTA PAGAR -->
   <div class="alert-bar">
     <div class="alert-label">Falta pagar — Propiedades</div>
-    <div class="alert-items">
-      <div class="alert-item">
-        <div class="ai-name">Depto Arenales</div>
-        <div class="ai-val c-amb">$132,000</div>
-        <div class="ai-note">8 cuotas × $16,500</div>
-      </div>
-      <div class="alert-item">
-        <div class="ai-name">Geriátrico</div>
-        <div class="ai-val c-rose">$250,000</div>
-        <div class="ai-note">Capital restante</div>
-      </div>
-      <div class="alert-item">
-        <div class="ai-name">Edificio Bronx</div>
-        <div class="ai-val c-rose">$500,000</div>
-        <div class="ai-note">Capital total pendiente</div>
-      </div>
-      <div class="alert-item ai-total">
-        <div class="ai-name">Total a pagar</div>
-        <div class="ai-val">$882,000</div>
-        <div class="ai-note">En 3 propiedades</div>
-      </div>
-    </div>
+    <div class="alert-items" id="falta-items"></div>
 
     <!-- CAPITAL GAP -->
     <div class="gap-wrap">
       <div class="gap-label">
         <div class="gap-title">💰 Capital disponible vs. lo que falta</div>
-        <div class="gap-nums">Cash actual: <strong>$83,000</strong> de $882,000 necesarios</div>
+        <div class="gap-nums">Cash actual: <strong id="gap-cash">$0</strong> de <span id="gap-need">$0</span> necesarios</div>
       </div>
       <div class="gap-track">
-        <div class="gap-fill"></div>
+        <div class="gap-fill" id="gap-fill" style="width:0%"></div>
       </div>
       <div class="gap-pct">
-        <span><strong>9.4%</strong> cubierto con el cash actual</span>
-        <span>Faltan juntar <strong style="color:var(--rose);">$799,000</strong></span>
+        <span><strong id="gap-pct">0%</strong> cubierto con el cash actual</span>
+        <span>Faltan juntar <strong id="gap-missing" style="color:var(--rose);">$0</strong></span>
       </div>
     </div>
   </div>
 
   <!-- STATS -->
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-v c-em">$1,530,000</div>
-      <div class="stat-l">Bolsa</div>
-    </div>
-    <div class="stat">
-      <div class="stat-v c-sky" id="stat-prop">$900,000</div>
-      <div class="stat-l" id="stat-prop-l">Propiedades invertido</div>
-    </div>
-    <div class="stat">
-      <div class="stat-v c-vio">$83,000</div>
-      <div class="stat-l">Cash</div>
-    </div>
-    <div class="stat">
-      <div class="stat-v c-amb">$25,500 <small>/mes</small></div>
-      <div class="stat-l">Renta total actual</div>
-    </div>
-    <div class="stat">
-      <div class="stat-v c-ind">$306,000 <small>/año</small></div>
-      <div class="stat-l">Ingreso anual actual</div>
-    </div>
-    <div class="stat">
-      <div class="stat-v" style="color:#9333ea;">$582,000 <small>/año</small></div>
-      <div class="stat-l">Ingreso anual objetivo</div>
-    </div>
-  </div>
+  <div class="stats" id="stats"></div>
 
   <!-- GRID -->
   <div class="grid">
 
     <!-- BOLSA -->
-    <div class="card">
+    <div class="card clickable" onclick="goDetail('bolsa')">
       <div class="card-accent" style="background:linear-gradient(90deg,var(--em),#34d399);"></div>
       <div class="card-head">
         <div class="icon" style="background:#d1fae5;">📈</div>
         <div class="card-title">Bolsa / Inversiones</div>
+        <span class="card-more">Ver posiciones →</span>
       </div>
-      <div class="row">
-        <div class="rl">
-          <div class="rn">Veta</div>
-          <div class="rno">Cuenta local · posición al 4/11</div>
-        </div>
-        <div class="rr"><div class="rv c-em">$1,500,000</div></div>
-      </div>
-      <div class="row">
-        <div class="rl">
-          <div class="rn">CAFE</div>
-          <div class="rno">Cuenta en el exterior</div>
-        </div>
-        <div class="rr"><div class="rv c-em">$30,000</div></div>
-      </div>
+      <div id="bolsa-rows"></div>
       <div class="sub-line">
         <div class="sub-l">Subtotal</div>
-        <div class="sub-v c-em">$1,530,000</div>
+        <div class="sub-v c-em" id="bolsa-sub">$0</div>
       </div>
     </div>
 
@@ -435,21 +492,10 @@
         <div class="icon" style="background:#ede9fe;">💵</div>
         <div class="card-title">Cash</div>
       </div>
-      <div class="row">
-        <div class="rl"><div class="rn">Ofi Lucho</div></div>
-        <div class="rr"><div class="rv c-vio">$40,000</div></div>
-      </div>
-      <div class="row">
-        <div class="rl"><div class="rn">PSEC</div></div>
-        <div class="rr"><div class="rv c-vio">$23,000</div></div>
-      </div>
-      <div class="row">
-        <div class="rl"><div class="rn">Veta</div></div>
-        <div class="rr"><div class="rv c-vio">$20,000</div></div>
-      </div>
+      <div id="cash-rows"></div>
       <div class="sub-line">
         <div class="sub-l">Subtotal</div>
-        <div class="sub-v c-vio">$83,000</div>
+        <div class="sub-v c-vio" id="cash-sub">$0</div>
       </div>
     </div>
 
@@ -463,36 +509,11 @@
       <div class="donut-wrap">
         <div class="donut-chart" id="donut-chart">
           <div class="donut-center">
-            <div class="donut-center-val" id="donut-total">$2.5M</div>
+            <div class="donut-center-val" id="donut-total">$0</div>
             <div class="donut-center-lbl">Total</div>
           </div>
         </div>
-        <div class="donut-legend">
-          <div class="dl-item">
-            <div class="dl-dot" style="background:var(--em);"></div>
-            <div class="dl-body">
-              <div class="dl-name">Bolsa</div>
-              <div class="dl-val">$1,530,000</div>
-            </div>
-            <div class="dl-pct c-em">61%</div>
-          </div>
-          <div class="dl-item">
-            <div class="dl-dot" style="background:var(--sky);"></div>
-            <div class="dl-body">
-              <div class="dl-name" id="donut-prop-name">Propiedades</div>
-              <div class="dl-val" id="donut-prop-val">$900,000</div>
-            </div>
-            <div class="dl-pct c-sky" id="donut-prop-pct">36%</div>
-          </div>
-          <div class="dl-item">
-            <div class="dl-dot" style="background:var(--vio);"></div>
-            <div class="dl-body">
-              <div class="dl-name">Cash</div>
-              <div class="dl-val">$83,000</div>
-            </div>
-            <div class="dl-pct c-vio" id="donut-cash-pct">3%</div>
-          </div>
-        </div>
+        <div class="donut-legend" id="donut-legend"></div>
       </div>
     </div>
 
@@ -507,22 +528,22 @@
       <div class="proj-row">
         <div>
           <div class="proj-label">Negocios (hoy)</div>
-          <div class="proj-sub">Veta + Off-Shore</div>
+          <div class="proj-sub">Renta mensual de negocios</div>
         </div>
         <div class="proj-vals">
-          <div class="proj-mes c-sub">$13,000/mes</div>
-          <div class="proj-anio c-amb">$156,000/año</div>
+          <div class="proj-mes c-sub" id="proj-neg-mes">$0/mes</div>
+          <div class="proj-anio c-amb" id="proj-neg-anio">$0/año</div>
         </div>
       </div>
 
       <div class="proj-row">
         <div>
           <div class="proj-label">Propiedades (hoy)</div>
-          <div class="proj-sub">Geriátrico + Bronx</div>
+          <div class="proj-sub">Renta de propiedades</div>
         </div>
         <div class="proj-vals">
-          <div class="proj-mes c-sub">$12,500/mes</div>
-          <div class="proj-anio c-sky">$150,000/año</div>
+          <div class="proj-mes c-sub" id="proj-prop-mes">$0/mes</div>
+          <div class="proj-anio c-sky" id="proj-prop-anio">$0/año</div>
         </div>
       </div>
 
@@ -531,8 +552,8 @@
           <div class="proj-label" style="font-weight:700;">Total actual</div>
         </div>
         <div class="proj-vals">
-          <div class="proj-mes c-sub">$25,500/mes</div>
-          <div class="proj-anio c-ind" style="font-size:1.1rem;">$306,000/año</div>
+          <div class="proj-mes c-sub" id="proj-tot-mes">$0/mes</div>
+          <div class="proj-anio c-ind" style="font-size:1.1rem;" id="proj-tot-anio">$0/año</div>
         </div>
       </div>
 
@@ -541,11 +562,11 @@
       <div class="proj-row">
         <div>
           <div class="proj-label">Negocios (objetivo)</div>
-          <div class="proj-sub">Veta + Off + Lili + nuevo</div>
+          <div class="proj-sub">Cuando todo esté completo</div>
         </div>
         <div class="proj-vals">
-          <div class="proj-mes c-sub">$36,000/mes</div>
-          <div class="proj-anio" style="color:#9333ea;">$432,000/año</div>
+          <div class="proj-mes c-sub" id="proj-negobj-mes">$0/mes</div>
+          <div class="proj-anio" style="color:#9333ea;" id="proj-negobj-anio">$0/año</div>
         </div>
       </div>
 
@@ -554,99 +575,21 @@
           <div class="proj-label" style="font-weight:700;">Total objetivo</div>
         </div>
         <div class="proj-vals">
-          <div class="proj-mes c-sub">$48,500/mes</div>
-          <div class="proj-anio" style="color:#9333ea; font-size:1.2rem;">$582,000/año</div>
+          <div class="proj-mes c-sub" id="proj-totobj-mes">$0/mes</div>
+          <div class="proj-anio" style="color:#9333ea; font-size:1.2rem;" id="proj-totobj-anio">$0/año</div>
         </div>
       </div>
     </div>
 
-    <!-- PROPIEDADES -->
-    <div class="card wide">
+    <!-- PROPIEDADES (resumen — click para ver detalle) -->
+    <div class="card wide clickable" onclick="goDetail('prop')">
       <div class="card-accent" style="background:linear-gradient(90deg,var(--sky),#38bdf8);"></div>
       <div class="card-head">
         <div class="icon" style="background:#e0f2fe;">🏢</div>
         <div class="card-title">Propiedades</div>
-        <span style="margin-left:auto; font-size:.65rem; color:var(--sub);">ROI = renta anual / invertido</span>
+        <span class="card-more">Ver detalle →</span>
       </div>
-
-      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:0 40px;">
-
-        <div class="row">
-          <div class="rl">
-            <div class="rn">Pueyrredón <span class="mult">×2</span></div>
-            <div class="rno">Invertido $400,000</div>
-            <span class="roi roi-na">ROI: sin renta definida</span>
-          </div>
-          <div class="rr">
-            <div class="rv c-sky prop-costo">$400,000</div>
-            <div class="rv c-em prop-mercado" style="display:none;">$800,000</div>
-            <div class="rv2 c-em prop-mercado" style="display:none;">+$400k</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="rl">
-            <div class="rn">La Dolfina <span class="mult">×4</span></div>
-            <div class="rno">Invertido $150,000</div>
-            <span class="roi roi-na">ROI: sin renta definida</span>
-          </div>
-          <div class="rr">
-            <div class="rv c-sky prop-costo">$150,000</div>
-            <div class="rv c-em prop-mercado" style="display:none;">$600,000</div>
-            <div class="rv2 c-em prop-mercado" style="display:none;">+$450k</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="rl">
-            <div class="rn">Depto Arenales</div>
-            <div class="rno">Invertido $100,000</div>
-            <span class="tag tag-amb">⏳ 8 × $16,500 pendientes</span><br/>
-            <span class="roi roi-na">ROI: sin renta definida</span>
-          </div>
-          <div class="rr"><div class="rv c-sky">$100,000</div></div>
-        </div>
-
-        <div class="row">
-          <div class="rl">
-            <div class="rn">Geriátrico</div>
-            <div class="rno">Invertido $250,000</div>
-            <span class="tag tag-rose">🔴 $250k pendientes</span><br/>
-            <span class="roi">📈 ROI: 15%/año sobre $500k total</span>
-          </div>
-          <div class="rr">
-            <div class="rv c-sky">$250,000</div>
-            <div class="badge badge-sky">💰 $6,250/mes</div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="rl">
-            <div class="rn">Edificio Bronx</div>
-            <div class="rno">Invertido $0</div>
-            <span class="tag tag-rose">🔴 $500k pendientes</span><br/>
-            <span class="roi">📈 ROI: 15%/año sobre $500k total</span>
-          </div>
-          <div class="rr">
-            <div class="rv c-sub">$0</div>
-            <div class="badge badge-sky">💰 $6,250/mes</div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="sub-line">
-        <div>
-          <div class="sub-l">Invertido · Renta mensual</div>
-          <div style="font-size:.63rem; color:var(--sub); margin-top:3px;">Geriátrico + Bronx generan $12,500/mes</div>
-        </div>
-        <div class="sub-r">
-          <span class="sub-v c-sky prop-costo">$900,000</span>
-          <span class="sub-v c-em prop-mercado" style="display:none;">$1,750,000</span>
-          <span class="prop-mercado" style="display:none; font-size:.7rem; color:var(--em); margin-left:8px;">+$850k vs costo</span>
-          <span style="font-size:.76rem; color:var(--sub); margin-left:10px;">· $12,500/mes</span>
-        </div>
-      </div>
+      <div id="prop-summary"></div>
     </div>
 
     <!-- NEGOCIOS -->
@@ -657,77 +600,7 @@
         <div class="card-title">Negocios — Renta mensual</div>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:0 40px;">
-
-        <div class="neg">
-          <div class="neg-top">
-            <div class="neg-name">Veta</div>
-            <div class="neg-nums">
-              <span class="neg-cur c-amb">$12,000</span>
-              <span class="neg-tgt"> → $20,000/mes</span>
-            </div>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:60%; background:var(--amb); animation-delay:.1s;"></div>
-          </div>
-          <div class="neg-foot">
-            <div class="neg-note">Faltan $8,000/mes</div>
-            <div class="neg-pct c-amb">60%</div>
-          </div>
-        </div>
-
-        <div class="neg">
-          <div class="neg-top">
-            <div class="neg-name">Cuentas Off-Shore</div>
-            <div class="neg-nums">
-              <span class="neg-cur c-amb">$1,000</span>
-              <span class="neg-tgt"> → $6,000/mes</span>
-            </div>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:17%; background:var(--ind); animation-delay:.2s;"></div>
-          </div>
-          <div class="neg-foot">
-            <div class="neg-note">Mayor upside · faltan $5,000/mes</div>
-            <div class="neg-pct c-ind">17%</div>
-          </div>
-        </div>
-
-        <div class="neg">
-          <div class="neg-top">
-            <div class="neg-name">Lili Pink <span style="font-size:.7rem; color:var(--sub); font-weight:400;">· marca de ropa</span></div>
-            <div class="neg-nums">
-              <span class="neg-cur c-sub">$0</span>
-              <span class="neg-tgt"> → $10,000/mes</span>
-            </div>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:0%; background:var(--rose); animation-delay:.3s;"></div>
-          </div>
-          <div class="neg-foot">
-            <div class="neg-note">Sin ingresos todavía</div>
-            <div class="neg-pct c-rose">0%</div>
-          </div>
-        </div>
-
-        <div class="neg">
-          <div class="neg-top">
-            <div class="neg-name" style="color:var(--sub);">+ Nuevo negocio <span style="font-size:.7rem;">(por definir)</span></div>
-            <div class="neg-nums">
-              <span class="neg-cur c-sub">$0</span>
-              <span class="neg-tgt"> → TBD</span>
-            </div>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:0%; background:#ccc; animation-delay:.4s;"></div>
-          </div>
-          <div class="neg-foot">
-            <div class="neg-note">Pendiente identificar</div>
-            <div class="neg-pct c-sub">—</div>
-          </div>
-        </div>
-
-      </div>
+      <div id="neg-rows" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:0 40px;"></div>
 
       <div class="sub-line">
         <div>
@@ -735,50 +608,824 @@
           <div style="font-size:.63rem; color:var(--sub); margin-top:3px;">Objetivo cuando todo esté completo</div>
         </div>
         <div class="sub-r">
-          <div class="sub-v c-amb">$13,000 <span style="font-size:.8rem; font-weight:400; color:var(--sub);">/mes</span></div>
-          <div style="font-size:.82rem; color:#9333ea; font-weight:800; margin-top:2px;">→ $36,000+/mes</div>
+          <div class="sub-v c-amb" id="neg-sub"><span id="neg-sub-cur">$0</span> <span style="font-size:.8rem; font-weight:400; color:var(--sub);">/mes</span></div>
+          <div style="font-size:.82rem; color:#9333ea; font-weight:800; margin-top:2px;" id="neg-sub-obj">→ $0/mes</div>
         </div>
       </div>
     </div>
 
   </div><!-- /grid -->
 
-  <footer>David & Fede · Solo uso interno · Abril 2026</footer>
+  <footer>David &amp; Fede · Solo uso interno · <span id="foot-updated"></span></footer>
+
+  </div><!-- /view-main -->
+
+  <!-- ══ DETALLE: BOLSA ══ -->
+  <div id="view-bolsa" class="detail-view">
+    <div class="detail-head">
+      <button class="back-btn" onclick="goMain()">← Volver</button>
+      <h2>📈 Bolsa — Detalle de posiciones</h2>
+    </div>
+
+    <!-- Líneas de la cuenta -->
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--em),#34d399);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#d1fae5;">💼</div>
+        <div class="card-title">Cuentas</div>
+      </div>
+      <div id="bolsa-rows-2"></div>
+      <div class="sub-line">
+        <div class="sub-l">Subtotal Bolsa</div>
+        <div class="sub-v c-em" id="bolsa-sub-2">$0</div>
+      </div>
+    </div>
+
+    <!-- Posiciones consolidadas -->
+    <div class="card" id="pos-card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--em),#10b981);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#d1fae5;">📊</div>
+        <div class="card-title">Posiciones consolidadas</div>
+        <span id="pos-sub" style="margin-left:auto; font-size:.65rem; color:var(--sub);"></span>
+      </div>
+      <div id="pos-body"></div>
+    </div>
+  </div>
+
+  <!-- ══ DETALLE: PROPIEDADES ══ -->
+  <div id="view-prop" class="detail-view">
+    <div class="detail-head">
+      <button class="back-btn" onclick="goMain()">← Volver</button>
+      <h2>🏢 Propiedades — Detalle</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--sky),#38bdf8);"></div>
+      <div class="card-head">
+        <div class="icon" style="background:#e0f2fe;">🏢</div>
+        <div class="card-title">Propiedades</div>
+        <span style="margin-left:auto; font-size:.65rem; color:var(--sub);">ROI = renta anual / invertido</span>
+      </div>
+
+      <div id="prop-rows" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:0 40px;"></div>
+
+      <div class="sub-line">
+        <div>
+          <div class="sub-l">Invertido · Renta mensual</div>
+          <div style="font-size:.63rem; color:var(--sub); margin-top:3px;" id="prop-foot-note"></div>
+        </div>
+        <div class="sub-r">
+          <span class="sub-v c-sky prop-costo" id="prop-sub-costo">$0</span>
+          <span class="sub-v c-em prop-mercado" id="prop-sub-mercado" style="display:none;">$0</span>
+          <span class="prop-mercado" id="prop-sub-diff" style="display:none; font-size:.7rem; color:var(--em); margin-left:8px;"></span>
+          <span style="font-size:.76rem; color:var(--sub); margin-left:10px;" id="prop-sub-renta">· $0/mes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── EDITOR MODAL ── -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">✏️ Editar cartera</div>
+      <button class="modal-x" onclick="closeEditor()">✕</button>
+    </div>
+    <div class="modal-body" id="editor-body"></div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="resetData()">↺ Restaurar valores originales</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button class="btn" onclick="closeEditor()">Cancelar</button>
+        <button class="btn primary" onclick="saveEditor()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── IMPORT MODAL ── -->
+<div class="overlay" id="import-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📁 Importar cartera de Veta</div>
+      <button class="modal-x" onclick="closeImport()">✕</button>
+    </div>
+    <div class="modal-body" id="import-body"></div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="document.getElementById('veta-input').click()">Elegir otro archivo</button>
+      <div style="display:flex; gap:10px; margin-left:auto;">
+        <button class="btn" onclick="closeImport()">Cancelar</button>
+        <button class="btn primary" onclick="applyImport()">Cargar en el dashboard</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-  function setView(v) {
-    const m = v === 'mercado';
-    document.querySelectorAll('.pn-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.pn-btn[onclick="setView('${v}')"]`).classList.add('active');
+/* ============================================================
+   FUENTE ÚNICA DE DATOS — editá acá (o desde "Editar cartera")
+   Todo el dashboard se calcula a partir de este objeto.
+   ============================================================ */
+const DEFAULT_DATA = {
+  updated: '4 nov 2025',
+  bolsa: [
+    { nombre: 'Veta', nota: 'Cuenta local · posición al 4/11', valor: 1500000 },
+    { nombre: 'CAFE', nota: 'Cuenta en el exterior',           valor: 30000  },
+  ],
+  cash: [
+    { nombre: 'Ofi Lucho', valor: 40000 },
+    { nombre: 'PSEC',       valor: 23000 },
+    { nombre: 'Veta',       valor: 20000 },
+  ],
+  propiedades: [
+    { nombre: 'Pueyrredón',     mult: '×2', invertido: 400000, costo: 400000, mercado: 800000, pendiente: 0,      pendNota: '',                          rentaMes: 0,    roi: '' },
+    { nombre: 'La Dolfina',     mult: '×4', invertido: 150000, costo: 150000, mercado: 600000, pendiente: 0,      pendNota: '',                          rentaMes: 0,    roi: '' },
+    { nombre: 'Depto Arenales', mult: '',   invertido: 100000, costo: 100000, mercado: 100000, pendiente: 132000, pendNota: '8 cuotas × $16,500',        rentaMes: 0,    roi: '' },
+    { nombre: 'Geriátrico',     mult: '',   invertido: 250000, costo: 250000, mercado: 250000, pendiente: 250000, pendNota: 'Capital restante',          rentaMes: 6250, roi: '15%/año sobre $500k total' },
+    { nombre: 'Edificio Bronx', mult: '',   invertido: 0,      costo: 0,      mercado: 0,      pendiente: 500000, pendNota: 'Capital total pendiente',   rentaMes: 6250, roi: '15%/año sobre $500k total' },
+  ],
+  negocios: [
+    { nombre: 'Veta',             sub: '',              actual: 12000, objetivo: 20000, color: 'amb',  nota: '' },
+    { nombre: 'Cuentas Off-Shore', sub: '',             actual: 1000,  objetivo: 6000,  color: 'ind',  nota: 'Mayor upside' },
+    { nombre: 'Lili Pink',        sub: 'marca de ropa', actual: 0,     objetivo: 10000, color: 'rose', nota: 'Sin ingresos todavía' },
+    { nombre: '+ Nuevo negocio',  sub: '(por definir)', actual: 0,     objetivo: 0,     color: 'sub',  nota: 'Pendiente identificar' },
+  ],
+};
 
-    document.getElementById('total-num').textContent = m ? '$3,363,000' : '$2,513,000';
-    document.getElementById('total-sub').textContent = m
-      ? 'A valor de mercado estimado · Calculado'
-      : 'Lo invertido hasta hoy · Calculado';
+const STORE_KEY = 'cartera_pn_v2';
+let DATA = load();
+let VIEW = 'costo';
 
-    document.getElementById('stat-prop').textContent   = m ? '$1,750,000' : '$900,000';
-    document.getElementById('stat-prop-l').textContent  = m ? 'Propiedades mercado' : 'Propiedades invertido';
+/* ── Helpers ── */
+const fmt  = n => '$' + Math.round(n).toLocaleString('en-US');
+const fmtM = n => '$' + (n / 1e6).toFixed(1) + 'M';
+const sum  = (arr, k) => arr.reduce((a, x) => a + (Number(x[k]) || 0), 0);
 
-    // donut chart update
-    const propPct  = m ? 84.1 : 35.8;   // 1750/2513 vs 900/2513 (over total costo)
-    const cashPct  = m ? 2.5  : 3.3;
-    const bolsaPct = m ? 45.5 : 60.9;   // 1530/3363
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+function persist() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); } catch (e) {}
+}
 
-    document.getElementById('donut-chart').style.background = `conic-gradient(
-      var(--em)  0% ${bolsaPct.toFixed(1)}%,
-      var(--sky) ${bolsaPct.toFixed(1)}% ${(bolsaPct+propPct).toFixed(1)}%,
-      var(--vio) ${(bolsaPct+propPct).toFixed(1)}% 100%
-    )`;
-    document.getElementById('donut-total').textContent      = m ? '$3.4M' : '$2.5M';
-    document.getElementById('donut-prop-name').textContent  = m ? 'Prop. (mercado)' : 'Propiedades';
-    document.getElementById('donut-prop-val').textContent   = m ? '$1,750,000' : '$900,000';
-    document.getElementById('donut-prop-pct').textContent   = m ? '52%' : '36%';
-    document.getElementById('donut-cash-pct').textContent   = m ? '2%' : '3%';
+/* ── Cálculos derivados ── */
+function calc() {
+  const bolsa = sum(DATA.bolsa, 'valor');
+  const cash  = sum(DATA.cash, 'valor');
+  const propCosto   = sum(DATA.propiedades, 'costo');
+  const propMercado = sum(DATA.propiedades, 'mercado');
+  const propRenta   = sum(DATA.propiedades, 'rentaMes');
+  const falta       = sum(DATA.propiedades, 'pendiente');
+  const negActual   = sum(DATA.negocios, 'actual');
+  const negObjetivo = sum(DATA.negocios, 'objetivo');
+  return {
+    bolsa, cash, propCosto, propMercado, propRenta, falta,
+    negActual, negObjetivo,
+    totalCosto:   bolsa + propCosto + cash,
+    totalMercado: bolsa + propMercado + cash,
+    rentaActualMes:  negActual + propRenta,
+    rentaObjetivoMes: negObjetivo + propRenta,
+  };
+}
 
-    document.querySelectorAll('.prop-costo').forEach(e   => e.style.display = m ? 'none' : '');
-    document.querySelectorAll('.prop-mercado').forEach(e => e.style.display = m ? ''     : 'none');
+/* ── Render ── */
+function render() {
+  const c = calc();
+  const mercado = VIEW === 'mercado';
+  const total   = mercado ? c.totalMercado : c.totalCosto;
+  const propVal = mercado ? c.propMercado : c.propCosto;
+
+  // Header total
+  document.getElementById('total-num').textContent = fmt(total);
+  document.getElementById('total-sub').textContent = mercado
+    ? 'A valor de mercado estimado · Calculado'
+    : 'Lo invertido hasta hoy · Calculado';
+  document.getElementById('foot-updated').textContent = 'Actualizado ' + (DATA.updated || '');
+
+  // Toggle active state
+  document.querySelectorAll('.pn-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.view === VIEW));
+
+  // Falta pagar
+  const faltaItems = DATA.propiedades.filter(p => p.pendiente > 0);
+  const faltaEl = document.getElementById('falta-items');
+  faltaEl.innerHTML = faltaItems.map((p, i) => `
+    <div class="alert-item">
+      <div class="ai-name">${esc(p.nombre)}</div>
+      <div class="ai-val ${i === 0 ? 'c-amb' : 'c-rose'}">${fmt(p.pendiente)}</div>
+      <div class="ai-note">${esc(p.pendNota || 'Capital pendiente')}</div>
+    </div>`).join('') + `
+    <div class="alert-item ai-total">
+      <div class="ai-name">Total a pagar</div>
+      <div class="ai-val">${fmt(c.falta)}</div>
+      <div class="ai-note">En ${faltaItems.length} propiedades</div>
+    </div>`;
+
+  // Capital gap
+  const pct = c.falta > 0 ? (c.cash / c.falta * 100) : 0;
+  document.getElementById('gap-cash').textContent    = fmt(c.cash);
+  document.getElementById('gap-need').textContent    = fmt(c.falta);
+  document.getElementById('gap-fill').style.width     = Math.min(pct, 100).toFixed(1) + '%';
+  document.getElementById('gap-pct').textContent      = pct.toFixed(1) + '%';
+  document.getElementById('gap-missing').textContent  = fmt(Math.max(c.falta - c.cash, 0));
+
+  // Stats
+  document.getElementById('stats').innerHTML = `
+    ${statHTML('c-em',  fmt(c.bolsa), 'Bolsa')}
+    ${statHTML('c-sky', fmt(propVal), mercado ? 'Propiedades mercado' : 'Propiedades invertido')}
+    ${statHTML('c-vio', fmt(c.cash), 'Cash')}
+    ${statHTML('c-amb', fmt(c.rentaActualMes) + ' <small>/mes</small>', 'Renta total actual')}
+    ${statHTML('c-ind', fmt(c.rentaActualMes * 12) + ' <small>/año</small>', 'Ingreso anual actual')}
+    ${statCustom('#9333ea', fmt(c.rentaObjetivoMes * 12) + ' <small>/año</small>', 'Ingreso anual objetivo')}
+  `;
+
+  // Bolsa rows (aparece en el principal y en el detalle)
+  const bolsaHTML = DATA.bolsa.map(x => `
+    <div class="row">
+      <div class="rl"><div class="rn">${esc(x.nombre)}</div>${x.nota ? `<div class="rno">${esc(x.nota)}</div>` : ''}</div>
+      <div class="rr"><div class="rv c-em">${fmt(x.valor)}</div></div>
+    </div>`).join('');
+  document.getElementById('bolsa-rows').innerHTML = bolsaHTML;
+  document.getElementById('bolsa-sub').textContent = fmt(c.bolsa);
+  const br2 = document.getElementById('bolsa-rows-2'); if (br2) br2.innerHTML = bolsaHTML;
+  const bs2 = document.getElementById('bolsa-sub-2'); if (bs2) bs2.textContent = fmt(c.bolsa);
+
+  // Cash rows
+  document.getElementById('cash-rows').innerHTML = DATA.cash.map(x => `
+    <div class="row">
+      <div class="rl"><div class="rn">${esc(x.nombre)}</div></div>
+      <div class="rr"><div class="rv c-vio">${fmt(x.valor)}</div></div>
+    </div>`).join('');
+  document.getElementById('cash-sub').textContent = fmt(c.cash);
+
+  // Donut
+  renderDonut(c, mercado, propVal, total);
+
+  // Proyección
+  set('proj-neg-mes',    fmt(c.negActual) + '/mes');
+  set('proj-neg-anio',   fmt(c.negActual * 12) + '/año');
+  set('proj-prop-mes',   fmt(c.propRenta) + '/mes');
+  set('proj-prop-anio',  fmt(c.propRenta * 12) + '/año');
+  set('proj-tot-mes',    fmt(c.rentaActualMes) + '/mes');
+  set('proj-tot-anio',   fmt(c.rentaActualMes * 12) + '/año');
+  set('proj-negobj-mes', fmt(c.negObjetivo) + '/mes');
+  set('proj-negobj-anio',fmt(c.negObjetivo * 12) + '/año');
+  set('proj-totobj-mes', fmt(c.rentaObjetivoMes) + '/mes');
+  set('proj-totobj-anio',fmt(c.rentaObjetivoMes * 12) + '/año');
+
+  // Propiedades — resumen (principal) + detalle (página)
+  renderPropSummary(c, mercado, propVal);
+  renderProps(mercado);
+  const propRentaProps = DATA.propiedades.filter(p => p.rentaMes > 0).map(p => p.nombre).join(' + ');
+  document.getElementById('prop-foot-note').textContent =
+    propRentaProps ? `${propRentaProps} generan ${fmt(c.propRenta)}/mes` : 'Sin renta definida aún';
+  show('prop-sub-costo', !mercado); set('prop-sub-costo', fmt(c.propCosto));
+  show('prop-sub-mercado', mercado); set('prop-sub-mercado', fmt(c.propMercado));
+  const diff = document.getElementById('prop-sub-diff');
+  diff.style.display = mercado ? '' : 'none';
+  diff.textContent = '+' + fmt(c.propMercado - c.propCosto).slice(1) + ' vs costo';
+  set('prop-sub-renta', '· ' + fmt(c.propRenta) + '/mes');
+
+  // Negocios
+  renderNegocios();
+  set('neg-sub-cur', fmt(c.negActual));
+  set('neg-sub-obj', '→ ' + fmt(c.negObjetivo) + '/mes');
+
+  // Posiciones consolidadas
+  renderPosiciones();
+
+  persist();
+}
+
+function renderDonut(c, mercado, propVal, total) {
+  const segs = [
+    { name: 'Bolsa',                                    val: c.bolsa, color: 'var(--em)',  cls: 'c-em'  },
+    { name: mercado ? 'Prop. (mercado)' : 'Propiedades', val: propVal, color: 'var(--sky)', cls: 'c-sky' },
+    { name: 'Cash',                                     val: c.cash,  color: 'var(--vio)', cls: 'c-vio' },
+  ];
+  let acc = 0, stops = [];
+  segs.forEach(s => {
+    const from = acc / total * 100;
+    acc += s.val;
+    const to = acc / total * 100;
+    stops.push(`${s.color} ${from.toFixed(2)}% ${to.toFixed(2)}%`);
+  });
+  document.getElementById('donut-chart').style.background = `conic-gradient(${stops.join(', ')})`;
+  document.getElementById('donut-total').textContent = fmtM(total);
+  document.getElementById('donut-legend').innerHTML = segs.map(s => `
+    <div class="dl-item">
+      <div class="dl-dot" style="background:${s.color};"></div>
+      <div class="dl-body">
+        <div class="dl-name">${esc(s.name)}</div>
+        <div class="dl-val">${fmt(s.val)}</div>
+      </div>
+      <div class="dl-pct ${s.cls}">${Math.round(s.val / total * 100)}%</div>
+    </div>`).join('');
+}
+
+function renderProps(mercado) {
+  document.getElementById('prop-rows').innerHTML = DATA.propiedades.map(p => {
+    const roiHTML = p.roi
+      ? `<span class="roi">📈 ROI: ${esc(p.roi)}</span>`
+      : `<span class="roi roi-na">ROI: sin renta definida</span>`;
+    const pendTag = p.pendiente > 0
+      ? `<span class="tag ${p.rentaMes > 0 ? 'tag-rose' : 'tag-amb'}">${p.rentaMes > 0 ? '🔴' : '⏳'} ${esc(p.pendNota || fmt(p.pendiente) + ' pendientes')}</span><br/>`
+      : '';
+    const rentaBadge = p.rentaMes > 0 ? `<div class="badge badge-sky">💰 ${fmt(p.rentaMes)}/mes</div>` : '';
+    let rightVal;
+    if (mercado && p.mercado !== p.costo) {
+      rightVal = `<div class="rv c-em">${fmt(p.mercado)}</div><div class="rv2 c-em">+${fmt(p.mercado - p.costo).slice(1)}</div>`;
+    } else {
+      const cls = (mercado ? p.mercado : p.costo) === 0 ? 'c-sub' : 'c-sky';
+      rightVal = `<div class="rv ${cls}">${fmt(mercado ? p.mercado : p.costo)}</div>`;
+    }
+    return `
+    <div class="row">
+      <div class="rl">
+        <div class="rn">${esc(p.nombre)} ${p.mult ? `<span class="mult">${esc(p.mult)}</span>` : ''}</div>
+        <div class="rno">Invertido ${fmt(p.invertido)}</div>
+        ${pendTag}${roiHTML}
+      </div>
+      <div class="rr">${rightVal}${rentaBadge}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderNegocios() {
+  document.getElementById('neg-rows').innerHTML = DATA.negocios.map((n, i) => {
+    const pct = n.objetivo > 0 ? Math.round(n.actual / n.objetivo * 100) : 0;
+    const barColor = { amb: 'var(--amb)', ind: 'var(--ind)', rose: 'var(--rose)', sub: '#ccc' }[n.color] || 'var(--amb)';
+    const curCls = n.actual > 0 ? 'c-' + (n.color === 'sub' ? 'sub' : 'amb') : 'c-sub';
+    const tgt = n.objetivo > 0 ? `$${n.objetivo.toLocaleString('en-US')}/mes` : 'TBD';
+    const falta = n.objetivo > n.actual ? `Faltan ${fmt(n.objetivo - n.actual)}/mes` : (n.nota || '');
+    return `
+    <div class="neg">
+      <div class="neg-top">
+        <div class="neg-name" ${n.color === 'sub' ? 'style="color:var(--sub);"' : ''}>${esc(n.nombre)}${n.sub ? ` <span style="font-size:.7rem; color:var(--sub); font-weight:400;">· ${esc(n.sub)}</span>` : ''}</div>
+        <div class="neg-nums">
+          <span class="neg-cur ${curCls}">${fmt(n.actual)}</span>
+          <span class="neg-tgt"> → ${tgt}</span>
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${barColor}; animation-delay:${.1 * (i + 1)}s;"></div></div>
+      <div class="neg-foot">
+        <div class="neg-note">${esc(n.nota || falta)}</div>
+        <div class="neg-pct c-${n.color}">${n.objetivo > 0 ? pct + '%' : '—'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPosiciones() {
+  const accounts = DATA.posiciones || {};
+  const names = Object.keys(accounts);
+  const body = document.getElementById('pos-body');
+  const sub = document.getElementById('pos-sub');
+  if (!names.length) {
+    sub.textContent = '';
+    body.innerHTML = `<div style="text-align:center; padding:20px; color:var(--sub); font-size:.8rem;">
+      Todavía no importaste posiciones. Usá <b>📁 Importar de Veta</b> (arriba a la derecha) para ver el detalle de tu cartera.</div>`;
+    return;
   }
+  const cur = accounts[names[0]].cur || 'USD';
+  const money = v => (cur === 'USD' ? fmt(v) : '$' + Math.round(v).toLocaleString('es-AR'));
+  const shortAcc = n => (n.split(/\s+/).pop() || n);
+
+  // Consolidar por ticker entre todas las cuentas
+  const map = {};
+  names.forEach(acc => {
+    (accounts[acc].holdings || []).forEach(h => {
+      const k = h.ticker;
+      if (!map[k]) map[k] = { ticker: h.ticker, nombre: h.nombre, valor: 0, resultado: 0, by: {} };
+      map[k].valor += h.valor;
+      map[k].resultado += h.resultado;
+      map[k].by[acc] = (map[k].by[acc] || 0) + h.valor;
+    });
+  });
+  const list = Object.values(map).sort((a, b) => b.valor - a.valor);
+  const total = list.reduce((s, x) => s + x.valor, 0);
+  const totalRes = list.reduce((s, x) => s + x.resultado, 0);
+  const multi = names.length > 1;
+
+  // Consolidar cuenta corriente (efectivo + caución) por tipo
+  const cashOrder = { pesos: 0, usd: 1, 'usd mep': 2 };
+  const cmap = {};
+  names.forEach(acc => {
+    (accounts[acc].cash || []).forEach(cr => {
+      if (!cmap[cr.key]) cmap[cr.key] = { key: cr.key, nombre: cr.nombre, valor: 0, by: {} };
+      cmap[cr.key].valor += cr.valor;
+      cmap[cr.key].by[acc] = (cmap[cr.key].by[acc] || 0) + cr.valor;
+    });
+  });
+  const cashList = Object.values(cmap).sort((a, b) => (cashOrder[a.key] ?? 9) - (cashOrder[b.key] ?? 9));
+  const cashTotal = cashList.reduce((s, x) => s + x.valor, 0);
+  const neto = total + cashTotal;
+
+  sub.innerHTML = `${list.length} especies · ${names.length} cuenta${multi ? 's' : ''} (${names.map(n => esc(shortAcc(n))).join(' + ')})`;
+
+  body.innerHTML = `
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:0 40px;">
+    ${list.map(p => {
+      const pct = total ? (p.valor / total * 100) : 0;
+      const cleanName = p.nombre.replace(new RegExp('^' + p.ticker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*'), '');
+      const resCls = p.resultado >= 0 ? 'c-em' : 'c-rose';
+      const split = multi
+        ? `<div class="rno">${Object.entries(p.by).map(([a, v]) => esc(shortAcc(a)) + ': ' + money(v)).join(' · ')}</div>`
+        : '';
+      return `
+      <div class="row">
+        <div class="rl">
+          <div class="rn">${esc(p.ticker)} <span style="font-weight:400; color:var(--sub); font-size:.72rem;">${esc(cleanName)}</span></div>
+          <div class="rno">${pct.toFixed(1)}% de la cartera${p.resultado ? ` · <span class="${resCls}">${p.resultado >= 0 ? '+' : ''}${money(p.resultado)}</span>` : ''}</div>
+          ${split}
+        </div>
+        <div class="rr"><div class="rv c-em">${money(p.valor)}</div></div>
+      </div>`;
+    }).join('')}
+    </div>
+    <div class="sub-line">
+      <div class="sub-l">Subtotal tenencias (bruto)</div>
+      <div class="sub-r">
+        <span class="sub-v c-em">${money(total)}</span>
+        ${totalRes ? `<span style="font-size:.76rem; margin-left:10px; font-weight:700;" class="${totalRes >= 0 ? 'c-em' : 'c-rose'}">${totalRes >= 0 ? '+' : ''}${money(totalRes)} result.</span>` : ''}
+      </div>
+    </div>
+    ${cashList.length ? `
+    <div style="margin-top:10px;">
+      <div class="sub-l" style="margin-bottom:2px;">Efectivo + caución (cuenta corriente)</div>
+      ${cashList.map(cr => `
+        <div class="row">
+          <div class="rl">
+            <div class="rn" style="font-weight:600;">${esc(cr.nombre)}</div>
+            ${multi ? `<div class="rno">${Object.entries(cr.by).map(([a, v]) => esc(shortAcc(a)) + ': ' + money(v)).join(' · ')}</div>` : ''}
+          </div>
+          <div class="rr"><div class="rv ${cr.valor < 0 ? 'c-rose' : 'c-sub'}">${money(cr.valor)}</div></div>
+        </div>`).join('')}
+    </div>` : ''}
+    <div class="sub-line" style="border-top:2px solid #e2e5f0;">
+      <div>
+        <div class="sub-l" style="color:var(--text); font-weight:700;">Total neto</div>
+        <div style="font-size:.62rem; color:var(--sub); margin-top:2px;">Tenencias + efectivo/caución · debería coincidir con las líneas Veta de Bolsa</div>
+      </div>
+      <div class="sub-r"><span class="sub-v c-ind">${money(neto)}</span></div>
+    </div>`;
+}
+
+function renderPropSummary(c, mercado, propVal) {
+  const el = document.getElementById('prop-summary');
+  if (!el) return;
+  el.innerHTML = `<div class="stats" style="margin-bottom:0;">
+    ${statHTML('c-sky', fmt(propVal), mercado ? 'Valor mercado' : 'Invertido')}
+    ${statHTML('c-em',  fmt(c.propRenta) + ' <small>/mes</small>', 'Renta mensual')}
+    ${statHTML('c-rose', fmt(c.falta), 'Falta pagar')}
+    ${statHTML('c-ind', DATA.propiedades.length, 'Propiedades')}
+  </div>`;
+}
+
+function statHTML(cls, val, label) {
+  return `<div class="stat"><div class="stat-v ${cls}">${val}</div><div class="stat-l">${esc(label)}</div></div>`;
+}
+function statCustom(color, val, label) {
+  return `<div class="stat"><div class="stat-v" style="color:${color};">${val}</div><div class="stat-l">${esc(label)}</div></div>`;
+}
+function set(id, txt)  { const e = document.getElementById(id); if (e) e.textContent = txt; }
+function show(id, on)  { const e = document.getElementById(id); if (e) e.style.display = on ? '' : 'none'; }
+function esc(s) { return String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
+
+function setView(v) { VIEW = v; render(); }
+
+/* Navegación entre el principal y las páginas de detalle */
+function goDetail(v) { document.body.className = 'v-' + v; window.scrollTo(0, 0); }
+function goMain() { document.body.className = ''; window.scrollTo(0, 0); }
+
+/* ============================================================
+   EDITOR
+   ============================================================ */
+function openEditor() {
+  const body = document.getElementById('editor-body');
+  body.innerHTML = `
+    ${listSection('Bolsa / Inversiones', 'bolsa', DATA.bolsa)}
+    ${listSection('Cash', 'cash', DATA.cash)}
+    ${propSection()}
+    ${negSection()}
+  `;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeEditor() { document.getElementById('overlay').classList.remove('open'); }
+
+function listSection(title, key, arr) {
+  return `<div class="ed-sec"><div class="ed-sec-title">${title}</div>
+    <div id="ed-${key}">
+      ${arr.map((x, i) => edListRow(key, i, x.nombre, x.valor)).join('')}
+    </div>
+    <button class="ed-add" onclick="edAdd('${key}')">+ Agregar línea</button>
+  </div>`;
+}
+function edListRow(key, i, nombre, valor) {
+  return `<div class="ed-row" data-key="${key}" data-i="${i}">
+    <input class="name" value="${esc(nombre)}" placeholder="Nombre" />
+    <input class="num" type="number" value="${valor}" placeholder="0" />
+    <button class="del" onclick="this.parentNode.remove()">✕</button>
+  </div>`;
+}
+function edAdd(key) {
+  const box = document.getElementById('ed-' + key);
+  box.insertAdjacentHTML('beforeend', edListRow(key, box.children.length, '', 0));
+}
+
+function propSection() {
+  return `<div class="ed-sec"><div class="ed-sec-title">Propiedades</div>
+    ${DATA.propiedades.map((p, i) => `
+      <div class="ed-prop" data-i="${i}">
+        <div class="ed-prop-name">${esc(p.nombre)}</div>
+        <div class="ed-fields">
+          ${edField('invertido', 'Invertido', p.invertido)}
+          ${edField('costo', 'A costo', p.costo)}
+          ${edField('mercado', 'A mercado', p.mercado)}
+          ${edField('pendiente', 'Falta pagar', p.pendiente)}
+          ${edField('rentaMes', 'Renta/mes', p.rentaMes)}
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+function negSection() {
+  return `<div class="ed-sec"><div class="ed-sec-title">Negocios (renta mensual)</div>
+    ${DATA.negocios.map((n, i) => `
+      <div class="ed-prop" data-neg="${i}">
+        <div class="ed-prop-name">${esc(n.nombre)}</div>
+        <div class="ed-fields">
+          ${edField('actual', 'Actual/mes', n.actual)}
+          ${edField('objetivo', 'Objetivo/mes', n.objetivo)}
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+function edField(name, label, val) {
+  return `<div class="ed-field"><label>${label}</label><input data-f="${name}" type="number" value="${val}" /></div>`;
+}
+
+function saveEditor() {
+  // Bolsa & Cash
+  ['bolsa', 'cash'].forEach(key => {
+    const rows = document.querySelectorAll(`#ed-${key} .ed-row`);
+    const list = [];
+    rows.forEach(r => {
+      const nombre = r.querySelector('.name').value.trim();
+      const valor  = Number(r.querySelector('.num').value) || 0;
+      if (nombre) list.push(key === 'bolsa'
+        ? { nombre, valor, nota: findNota('bolsa', nombre) }
+        : { nombre, valor });
+    });
+    DATA[key] = list;
+  });
+  // Propiedades
+  document.querySelectorAll('.ed-prop[data-i]').forEach(box => {
+    const p = DATA.propiedades[+box.dataset.i];
+    box.querySelectorAll('input[data-f]').forEach(inp => { p[inp.dataset.f] = Number(inp.value) || 0; });
+  });
+  // Negocios
+  document.querySelectorAll('.ed-prop[data-neg]').forEach(box => {
+    const n = DATA.negocios[+box.dataset.neg];
+    box.querySelectorAll('input[data-f]').forEach(inp => { n[inp.dataset.f] = Number(inp.value) || 0; });
+  });
+  DATA.updated = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
+  render();
+  closeEditor();
+}
+function findNota(key, nombre) {
+  const prev = DATA[key].find(x => x.nombre === nombre);
+  return prev ? (prev.nota || '') : '';
+}
+
+function resetData() {
+  if (confirm('¿Restaurar todos los valores originales? Se pierden los cambios guardados.')) {
+    DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    render();
+    closeEditor();
+  }
+}
+
+/* ============================================================
+   IMPORTAR PORTAFOLIO DE VETA (.xls = HTML con tabla)
+   Lee el "Portafolio Online" real: Total Portafolio + tipo de
+   cambio + posiciones. Convierte ARS→USD a elección.
+   ============================================================ */
+let lastImport = null;
+
+function handleImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try { lastImport = parseVeta(e.target.result); showImport(); }
+    catch (err) { alert('No pude leer el archivo.\n\n' + err.message); }
+    input.value = '';
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+/* Números formato argentino: 1.316.447.126,46 → 1316447126.46 */
+function parseAR(s) {
+  if (s == null) return null;
+  let t = String(s).replace(/[^\d.,-]/g, '');
+  if (!/\d/.test(t)) return null;
+  t = t.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(t);
+  return isNaN(n) ? null : n;
+}
+
+function parseVeta(text) {
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+  const trs = [...doc.querySelectorAll('tr')];
+  if (!trs.length) throw new Error('No parece un "Portafolio Online" de Veta (.xls). Exportalo desde la plataforma y probá de nuevo.');
+  const rows = trs.map(tr => [...tr.querySelectorAll('td,th')].map(td => td.textContent.replace(/\s+/g, ' ').trim()));
+
+  // Total Portafolio (valor neto)
+  let totalARS = null;
+  for (const r of rows) {
+    if (r.some(c => /total portafolio/i.test(c))) {
+      for (const c of r) { const v = parseAR(c); if (v !== null && Math.abs(v) > 1000) { totalARS = v; break; } }
+      if (totalARS !== null) break;
+    }
+  }
+  if (totalARS === null) throw new Error('No encontré la fila "Total Portafolio" en el archivo.');
+
+  // Tipo de cambio (celda "T. Cambio: 1.510,00", con tags en el medio)
+  let rate = null;
+  for (const r of rows) {
+    for (const c of r) {
+      if (/cambio/i.test(c)) { const v = parseAR(c.replace(/.*cambio:?/i, '')); if (v && v > 1) { rate = v; break; } }
+    }
+    if (rate) break;
+  }
+  if (!rate) { const rm = text.match(/Cambio[^\d]*([\d.]+,\d+)/i); if (rm) rate = parseAR(rm[1]); }
+
+  // Fecha de operación
+  let fecha = null;
+  const fm = text.match(/Fecha Operaci[oó]n:?\s*([\d/]+)/i);
+  if (fm) fecha = fm[1];
+
+  // Titular de la cuenta (para nombrar la línea automáticamente)
+  let titular = '';
+  const hi = rows.findIndex(r => r.some(c => /^usuario$/i.test(c)));
+  if (hi >= 0 && rows[hi + 1]) {
+    const col = rows[hi].findIndex(c => /^usuario$/i.test(c));
+    titular = (rows[hi + 1][col] || rows[hi + 1][0] || '').trim();
+  }
+  if (!titular) { const nm = text.match(/Nombre:?\s*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ ,]+)/); if (nm) titular = nm[1].trim(); }
+
+  // Posiciones (para vista previa). Las sub-filas Disponible/Garantía vienen
+  // SIN nombre (col 1 vacía), así que filtrando por nombre no se duplican.
+  const skip = /^(subtotal|pesos|usd|usd mep|a liq|total portafolio|tenencia|cuenta corriente|vencido|vencimiento|saldo|gtia)/i;
+  const holdings = [];
+  for (const r of rows) {
+    if (r.length < 6) continue;
+    const nombre = r[1] || '';
+    if (!nombre || skip.test(nombre)) continue;
+    const importe = parseAR(r[5]);
+    if (importe === null || Math.abs(importe) < 1) continue;
+    holdings.push({ nombre, importe, resultado: parseAR(r[9]) || 0, varPct: parseAR(r[8]) || 0 });
+  }
+
+  // Cuenta corriente: efectivo en pesos, dólares y la deuda/caución USD MEP.
+  // Estas filas tienen el nombre en col 1; las sub-filas (Disponible/A Liq) vienen vacías.
+  const cashMap = { 'pesos': 'Pesos ($)', 'usd': 'Dólares (USD)', 'usd mep': 'USD MEP (caución)' };
+  const cash = [];
+  const seenCash = {};
+  for (const r of rows) {
+    if (r.length < 6) continue;
+    const key = (r[1] || '').trim().toLowerCase();
+    if (cashMap[key] && !seenCash[key]) {
+      const importe = parseAR(r[5]);
+      if (importe !== null) { cash.push({ nombre: cashMap[key], key, importe }); seenCash[key] = true; }
+    }
+  }
+
+  return { totalARS, rate: rate || 1510, fecha, titular, holdings, cash };
+}
+
+function vetaLineName(titular) {
+  if (!titular) return 'Veta';
+  const nombres = titular.includes(',') ? titular.split(',')[1] : titular.split(/\s+/).slice(1).join(' ');
+  const first = (nombres || titular).trim().split(/\s+/)[0] || '';
+  const cap = first ? first.charAt(0).toUpperCase() + first.slice(1).toLowerCase() : '';
+  return cap ? 'Veta ' + cap : 'Veta';
+}
+
+function showImport() {
+  const d = lastImport;
+  const suggested = vetaLineName(d.titular);
+  document.getElementById('import-body').innerHTML = `
+    <div class="import-note">
+      Archivo leído ✅ ${d.titular ? ('· ' + esc(d.titular)) : ''} ${d.fecha ? ('· ' + esc(d.fecha)) : ''}<br/>
+      <b>Total Portafolio:</b> $${d.totalARS.toLocaleString('es-AR', { maximumFractionDigits: 0 })} <span style="opacity:.7">ARS</span>
+      · ${d.holdings.length} posiciones detectadas
+    </div>
+    <div class="ed-sec">
+      <div class="ed-sec-title">Cómo cargarlo</div>
+      <div class="ed-row" style="align-items:center; gap:18px;">
+        <label style="display:flex; align-items:center; gap:6px; font-size:.82rem; cursor:pointer;">
+          <input type="radio" name="cur" value="usd" checked onchange="updImportPreview()"/> Convertir a USD
+        </label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:.82rem; cursor:pointer;">
+          <input type="radio" name="cur" value="ars" onchange="updImportPreview()"/> Dejar en pesos
+        </label>
+      </div>
+      <div class="ed-row" id="rate-row">
+        <span class="hint">Tipo de cambio:</span>
+        <input class="num" id="import-rate" type="number" value="${d.rate}" oninput="updImportPreview()"/>
+        <span class="hint">(detectado del archivo)</span>
+      </div>
+      <div class="ed-row">
+        <span class="hint">Se carga en la línea:</span>
+        <input class="name" id="import-line" value="${esc(suggested)}" oninput="updImportPreview()"/>
+        <span class="hint">de Bolsa</span>
+      </div>
+      <div class="hint" id="import-line-hint" style="margin-top:-2px;"></div>
+      <div style="margin-top:10px; font-size:.95rem;">Valor a cargar: <b id="import-preview" class="c-em"></b></div>
+      <div class="hint" style="margin-top:8px; line-height:1.5;">💡 ¿Tenés otra cuenta Veta? Importá su <code>.xls</code> con otro nombre de línea (ej: <b>Veta David</b>) y las dos <b>se suman solas</b> en el subtotal de Bolsa.</div>
+    </div>
+    <details style="margin-top:6px;">
+      <summary style="cursor:pointer; font-size:.72rem; color:var(--sub);">Ver ${d.holdings.length} posiciones detectadas</summary>
+      <div style="margin-top:10px; font-size:.72rem; color:#3a3a5c; line-height:1.8;">
+        ${d.holdings.map(h => `${esc(h.nombre)} — <span style="color:var(--sub);">$${h.importe.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>`).join('<br/>')}
+      </div>
+    </details>
+  `;
+  updImportPreview();
+  document.getElementById('import-overlay').classList.add('open');
+}
+
+function importValue() {
+  const usd = document.querySelector('input[name=cur]:checked').value === 'usd';
+  const rate = Number(document.getElementById('import-rate').value) || 1;
+  return usd ? lastImport.totalARS / rate : lastImport.totalARS;
+}
+function updImportPreview() {
+  const usd = document.querySelector('input[name=cur]:checked').value === 'usd';
+  document.getElementById('rate-row').style.opacity = usd ? '1' : '.4';
+  document.getElementById('import-preview').textContent = fmt(importValue()) + (usd ? ' USD' : ' ARS');
+  const name = document.getElementById('import-line').value.trim() || 'Veta';
+  const exists = DATA.bolsa.some(x => x.nombre.toLowerCase() === name.toLowerCase());
+  const hint = document.getElementById('import-line-hint');
+  if (hint) hint.innerHTML = exists
+    ? `➤ Se <b>actualiza</b> la línea existente "${esc(name)}".`
+    : `➤ Se <b>crea</b> una línea nueva "${esc(name)}" (se suma a las que ya tenés).`;
+}
+function applyImport() {
+  const usd = document.querySelector('input[name=cur]:checked').value === 'usd';
+  const rate = Number(document.getElementById('import-rate').value) || 1;
+  const val = Math.round(importValue());
+  const lineName = document.getElementById('import-line').value.trim() || 'Veta';
+  const nota = 'Importado de Veta' + (lastImport.fecha ? (' · ' + lastImport.fecha) : '');
+  const existing = DATA.bolsa.find(x => x.nombre.toLowerCase() === lineName.toLowerCase());
+  if (existing) { existing.valor = val; existing.nota = nota; }
+  else DATA.bolsa.push({ nombre: lineName, valor: val, nota });
+
+  // Guardar el detalle de posiciones (para la tarjeta "Mis posiciones")
+  DATA.posiciones = DATA.posiciones || {};
+  DATA.posiciones[lineName] = {
+    fecha: lastImport.fecha || '',
+    cur: usd ? 'USD' : 'ARS',
+    holdings: lastImport.holdings.map(h => ({
+      ticker: (h.nombre.split(/\s+/)[0] || h.nombre),
+      nombre: h.nombre,
+      valor: usd ? h.importe / rate : h.importe,
+      resultado: usd ? h.resultado / rate : h.resultado,
+      varPct: h.varPct,
+    })),
+    cash: (lastImport.cash || []).map(cr => ({
+      nombre: cr.nombre, key: cr.key,
+      valor: usd ? cr.importe / rate : cr.importe,
+    })),
+  };
+
+  DATA.updated = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
+  render();
+  closeImport();
+}
+function closeImport() { document.getElementById('import-overlay').classList.remove('open'); }
+
+/* Cerrar modales con click afuera o Escape */
+['overlay', 'import-overlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target.id === id) e.currentTarget.classList.remove('open');
+  });
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.querySelector('.overlay.open')) { closeEditor(); closeImport(); }
+  else goMain();
+});
+
+/* ── Init ── */
+render();
 </script>
 </body>
 </html>
