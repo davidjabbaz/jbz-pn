@@ -1477,6 +1477,8 @@ function cloudSave() {
 function initCloud() {
   firebase.initializeApp(firebaseConfig);
   cloudRef = firebase.firestore().collection('app').doc('cartera');
+  // Mantener la sesión guardada (no volver a pedir la clave en este dispositivo)
+  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
       document.getElementById('login-overlay').classList.remove('open');
